@@ -29,3 +29,7 @@ func Load() *Config {
 		},
 	}
 }
+
+func (c *Config) IsDev() bool {
+	return c.App.Env == "development"
+}
