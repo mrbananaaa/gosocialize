@@ -1,19 +1,24 @@
 package logger
 
 import (
+	"sync"
+
 	"go.uber.org/zap"
 )
 
+var once sync.Once
 var log = zap.NewNop()
 
 func Init(cfg Config) error {
 	var err error
 
-	if cfg.Development {
-		log, err = zap.NewDevelopment()
-	} else {
-		log, err = zap.NewProduction()
-	}
+	once.Do(func() {
+		if cfg.Development {
+			log, err = zap.NewDevelopment()
+		} else {
+			log, err = zap.NewProduction()
+		}
+	})
 
 	return err
 }
