@@ -1,0 +1,43 @@
+package user
+
+import (
+	"context"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type Service struct {
+	repo Repository
+}
+
+func NewService(repo Repository) *Service {
+	return &Service{
+		repo: repo,
+	}
+}
+
+func (s *Service) Register(
+	ctx context.Context,
+	email string,
+	username string,
+	password string,
+	name string,
+) (*User, error) {
+	now := time.Now()
+	user := &User{
+		ID:        uuid.New(),
+		Email:     email,
+		Username:  username,
+		Password:  password,
+		Name:      name,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	if err := s.repo.Create(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
