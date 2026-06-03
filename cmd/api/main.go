@@ -8,10 +8,13 @@ import (
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/internal/api"
+	"github.com/mrbananaaa/gosocialize/pkg/config"
 )
 
 func main() {
-	s, err := api.NewServer()
+	cfg := config.Load()
+
+	s, err := api.NewServer(cfg)
 	if err != nil {
 		panic(err)
 	}

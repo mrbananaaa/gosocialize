@@ -6,13 +6,15 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/mrbananaaa/gosocialize/pkg/config"
 )
 
 type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer() (*Server, error) {
+func NewServer(cfg *config.Config) (*Server, error) {
 	mux := NewRouter()
 
 	httpServer := &http.Server{
