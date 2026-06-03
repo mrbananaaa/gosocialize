@@ -7,11 +7,11 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "./tmp/api"
+  bin = "./bin/api"
   cmd = "make build"
   delay = 1000
-  entrypoint = ["./tmp/api"]
-  exclude_dir = ["assets", "tmp", "vendor", "testdata", "docs"]
+  entrypoint = ["./bin/api"]
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "docs", "bin"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
