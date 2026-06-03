@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -14,22 +13,7 @@ type Server struct {
 }
 
 func NewServer() (*Server, error) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		d, err := json.Marshal(struct {
-			Message string `json:"message"`
-		}{
-			Message: "OK",
-		})
-		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(d)
-	})
+	mux := NewRouter()
 
 	httpServer := &http.Server{
 		Addr:         ":8080",
