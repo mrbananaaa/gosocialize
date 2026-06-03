@@ -6,7 +6,7 @@ API_ENTRY_POINT := cmd/api/main.go
 .PHONY: build
 build:
 	@echo "Building api.."
-	@go build -o tmp/api $(API_ENTRY_POINT)
+	@go build -o bin/api $(API_ENTRY_POINT)
 
 .PHONY: run
 run:
