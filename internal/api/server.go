@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/mrbananaaa/gosocialize/internal/user"
 	"github.com/mrbananaaa/gosocialize/pkg/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
@@ -17,7 +18,17 @@ type Server struct {
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
-	mux := NewRouter()
+	userRepo := user.NewRepository()
+
+	userService := user.NewService(userRepo)
+
+	userHandler := user.NewHandler(userService)
+
+	handlers := Handlers{
+		userHandler: userHandler,
+	}
+
+	mux := NewRouter(handlers)
 
 	httpServer := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Server.Port),
