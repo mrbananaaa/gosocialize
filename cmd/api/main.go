@@ -45,7 +45,7 @@ func main() {
 	}()
 
 	<-ctx.Done()
-	logger.Info("Shutting down server...")
+	logger.Warn("Shutting down server...")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -54,5 +54,5 @@ func main() {
 		logger.Fatal("Failed to shutdown http server", err)
 	}
 
-	logger.Info("Server closed gracefully")
+	logger.Warn("Server closed gracefully")
 }
