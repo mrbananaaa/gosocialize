@@ -3,15 +3,17 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/pkg/config"
+	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
 type Server struct {
 	httpServer *http.Server
+	config     *config.Config
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
@@ -32,8 +34,10 @@ func NewServer(cfg *config.Config) (*Server, error) {
 }
 
 func (s *Server) Run() error {
-	// TODO: Use environment variable from Config
-	log.Println("Server listening on :8080")
+	logger.Info(
+		"http server listening 👂",
+		logger.String("PORT", s.config.Server.Port),
+	)
 	if err := s.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
