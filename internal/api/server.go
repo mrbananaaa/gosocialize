@@ -18,7 +18,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	mux := NewRouter()
 
 	httpServer := &http.Server{
-		Addr:         ":8080",
+		Addr:         fmt.Sprintf(":%s", cfg.Server.Port),
 		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
@@ -27,6 +27,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 
 	return &Server{
 		httpServer: httpServer,
+		config:     cfg,
 	}, nil
 }
 
