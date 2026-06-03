@@ -7,9 +7,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/mrbananaaa/gosocialize/internal/user"
 )
 
-func NewRouter() http.Handler {
+type Handlers struct {
+	userHandler *user.Handler
+}
+
+func NewRouter(h Handlers) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -27,6 +32,8 @@ func NewRouter() http.Handler {
 	}))
 
 	r.Route("/v1", func(u chi.Router) {
+		u.Mount("/user", h.userHandler.Routes())
+
 		// TODO: move this to separate packages
 		u.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 			d, err := json.Marshal(struct {
