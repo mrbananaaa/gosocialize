@@ -17,3 +17,7 @@ func Bool(key string, value bool) zap.Field {
 func ErrorField(err error) zap.Field {
 	return zap.Error(err)
 }
+
+func Bytes(key string, value []byte) zap.Field {
+	return zap.Binary(key, value)
+}

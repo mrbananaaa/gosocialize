@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 	"github.com/mrbananaaa/gosocialize/pkg/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
@@ -18,13 +20,23 @@ type Server struct {
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
-	userRepo := user.NewRepository()
+	db, err := postgres.New(cfg.DB.URL)
+	if err != nil {
+		return nil, err
+	}
 
-	userService := user.NewService(userRepo)
+	argon2Hasher := auth.NewArgon2Hasher()
 
+	// userRepo := user.NewRepository()
+
+	authService := auth.NewService(argon2Hasher, db.Q)
+	userService := user.NewService(db.Q)
+
+	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)
 
 	handlers := Handlers{
+		authHandler: authHandler,
 		userHandler: userHandler,
 	}
 

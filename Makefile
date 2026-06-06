@@ -3,6 +3,8 @@ export
 
 API_ENTRY_POINT := cmd/api/main.go
 
+DOCKER_COMPOSE_FILE := compose.yml
+
 .PHONY: build
 build:
 	@echo "Building api.."
@@ -28,6 +30,22 @@ dev: clean watch
 windows-dev:
 	@air -c .air.windows.toml
 
+.PHONY: compose-up
+compose-up:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+
+.PHONY: compose-down
+compose-down:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) down
+
+.PHONY: compose-logs
+compose-logs:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) logs -f
+
+.PHONY: psql
+psql:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) exec -it postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+
 .PHONY: help
 help:
 	@echo "Available commands:"
@@ -35,3 +53,7 @@ help:
 	@echo "  make build"
 	@echo "  make dev"
 	@echo "  make windows-dev"
+	@echo "  make compose-up"
+	@echo "  make compose-down"
+	@echo "  make compose-logs"
+	@echo "  make psql"

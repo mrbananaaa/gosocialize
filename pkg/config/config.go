@@ -5,6 +5,7 @@ import "github.com/joho/godotenv"
 type Config struct {
 	App    AppConfig
 	Server ServerConfig
+	DB     DatabaseConfig
 }
 
 type AppConfig struct {
@@ -14,6 +15,10 @@ type AppConfig struct {
 
 type ServerConfig struct {
 	Port string
+}
+
+type DatabaseConfig struct {
+	URL string
 }
 
 func Load() *Config {
@@ -26,6 +31,9 @@ func Load() *Config {
 		},
 		Server: ServerConfig{
 			Port: required("PORT"),
+		},
+		DB: DatabaseConfig{
+			URL: required("DB_URL"),
 		},
 	}
 }

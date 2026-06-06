@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
-	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
 type ErrorResponse struct {
@@ -67,7 +66,7 @@ func statusFromCode(code string) int {
 
 	default:
 		// WARN: remove this log later
-		logger.Warn("[httpx] - Unknown Error, defaulting to Internal Server Error")
+		// logger.Warn("[httpx] - Unknown Error, defaulting to Internal Server Error")
 		return http.StatusInternalServerError
 	}
 }

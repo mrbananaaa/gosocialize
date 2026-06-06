@@ -7,10 +7,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/mrbananaaa/gosocialize/internal/auth"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 )
 
 type Handlers struct {
+	authHandler *auth.Handler
 	userHandler *user.Handler
 }
 
@@ -32,6 +34,7 @@ func NewRouter(h Handlers) http.Handler {
 	}))
 
 	r.Route("/v1", func(u chi.Router) {
+		u.Mount("/auth", h.authHandler.Routes())
 		u.Mount("/user", h.userHandler.Routes())
 
 		// TODO: move this to separate packages

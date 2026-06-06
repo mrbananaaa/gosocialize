@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
 )
 
 type Service struct {
-	repo Repository
+	q *sqlc.Queries
 }
 
-func NewService(repo Repository) *Service {
+func NewService(q *sqlc.Queries) *Service {
 	return &Service{
-		repo: repo,
+		q: q,
 	}
 }
 
@@ -35,9 +36,9 @@ func (s *Service) Register(
 		UpdatedAt: now,
 	}
 
-	if err := s.repo.Create(ctx, user); err != nil {
-		return nil, err
-	}
+	// if err := s.repo.Create(ctx, user); err != nil {
+	// 	return nil, err
+	// }
 
 	return user, nil
 }

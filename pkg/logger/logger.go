@@ -14,7 +14,10 @@ func Init(cfg Config) error {
 
 	once.Do(func() {
 		if cfg.Development {
-			log, err = zap.NewDevelopment()
+			logConfig := zap.NewDevelopmentConfig()
+			logConfig.DisableStacktrace = true
+
+			log, err = logConfig.Build()
 		} else {
 			log, err = zap.NewProduction()
 		}
