@@ -7,6 +7,9 @@ var Code = struct {
 	InvalidCredentials string
 	Forbidden          string
 	Conflict           string
+	NotFound           string
+	Unauthorized       string
+	BadRequest         string
 }{
 	Internal:           "internal.server_error",
 	ValidationFailed:   "validation.failed",
@@ -14,4 +17,7 @@ var Code = struct {
 	InvalidCredentials: "auth.invalid_credentials",
 	Forbidden:          "auth.forbidden",
 	Conflict:           "resource.conflict",
+	NotFound:           "resource.not_found",
+	Unauthorized:       "auth.unauthorized",
+	BadRequest:         "bad_request",
 }

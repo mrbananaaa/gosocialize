@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mrbananaaa/gosocialize/internal/domain"
+	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
 )
 
@@ -33,16 +35,16 @@ type RegisterInput struct {
 func (s *Service) Register(
 	ctx context.Context,
 	input RegisterInput,
-) error {
+) (*domain.User, error) {
 	userID := uuid.New()
 	creationTime := time.Now()
 	passwordHash, err := s.ph.Hash(input.Password)
 	if err != nil {
 		// TODO: Wrap with internal error
-		return err
+		return nil, err
 	}
 
-	err = s.q.CreateUser(ctx, sqlc.CreateUserParams{
+	u := sqlc.CreateUserParams{
 		ID:        userID,
 		Email:     input.Email,
 		Username:  input.Username,
@@ -50,11 +52,21 @@ func (s *Service) Register(
 		Name:      input.Name,
 		CreatedAt: creationTime,
 		UpdatedAt: creationTime,
-	})
-	if err != nil {
-		// TODO: Wrap with internal error
-		return err
 	}
 
-	return nil
+	err = s.q.CreateUser(ctx, u)
+	if err != nil {
+		err = postgres.PgErrMapper(err)
+		return nil, err
+	}
+
+	return &domain.User{
+		ID:        u.ID,
+		Email:     u.Email,
+		Username:  u.Username,
+		Password:  u.Password,
+		Name:      u.Name,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+	}, nil
 }

@@ -1,5 +1,14 @@
 package apperr
 
+var (
+	ErrConflict     = New(Code.Conflict, "")
+	ErrNotFound     = New(Code.NotFound, "")
+	ErrForbidden    = New(Code.Forbidden, "")
+	ErrUnauthorized = New(Code.Unauthorized, "")
+	ErrValidation   = New(Code.ValidationFailed, "")
+	ErrInternal     = New(Code.Internal, "something went wrong")
+)
+
 type Error struct {
 	Code    string
 	Message string
@@ -7,8 +16,8 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	if e.Message != "" {
-		return e.Message
+	if e.Err != nil {
+		return e.Message + ": " + e.Err.Error()
 	}
 
 	return e.Code
