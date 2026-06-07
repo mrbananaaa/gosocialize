@@ -8,7 +8,7 @@ import (
 func (h *Handler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/signup", h.RegisterUser)
+	// r.Post("/signup", h.RegisterUser)
 
 	return r
 }

@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
+	"github.com/mrbananaaa/gosocialize/internal/platform/jwt"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 	"github.com/mrbananaaa/gosocialize/pkg/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
@@ -25,12 +27,15 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		return nil, err
 	}
 
+	tokenService := jwt.New()
 	argon2Hasher := auth.NewArgon2Hasher()
 
 	// userRepo := user.NewRepository()
 
-	authService := auth.NewService(argon2Hasher, db.Q)
+	authService := auth.NewService(tokenService, argon2Hasher, db.Q)
 	userService := user.NewService(db.Q)
+
+	authMiddleware := middlewares.AuthMiddleware(tokenService)
 
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)
@@ -40,7 +45,11 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		userHandler: userHandler,
 	}
 
-	mux := NewRouter(handlers)
+	middlewares := Middlewares{
+		authMiddleware: authMiddleware,
+	}
+
+	mux := NewRouter(handlers, middlewares)
 
 	httpServer := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Server.Port),

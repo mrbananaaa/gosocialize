@@ -75,6 +75,42 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type SignInRequest struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type SignInResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
-	httpx.Message(w, http.StatusOK, "auth/signin handler")
+	var req SignInRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Error("failed to parse request body", logger.ErrorField(err))
+		httpx.Error(w, apperr.New("BAD REQUEST", "bad request body"))
+		return
+	}
+
+	if err := validator.ValidateStruct(req); err != nil {
+		logger.Error("failed to valdiate request body", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	// token
+	token, err := h.authService.Login(r.Context(), LoginInput{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		logger.Error("Failed to logging in user", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	httpx.OK(w, SignInResponse{
+		AccessToken: token,
+	})
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 )
@@ -30,6 +31,10 @@ const (
 func PgErrMapper(err error) error {
 	if err == nil {
 		return nil
+	}
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return apperr.ErrNotFound
 	}
 
 	var pgErr *pgconn.PgError
