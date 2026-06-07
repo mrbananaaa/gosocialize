@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 )
@@ -17,10 +18,8 @@ type Handlers struct {
 	userHandler *user.Handler
 }
 
-type Middleware func(http.Handler) http.Handler
-
 type Middlewares struct {
-	authMiddleware Middleware
+	authMiddleware *middlewares.AuthMiddleware
 }
 
 func NewRouter(h Handlers, m Middlewares) http.Handler {
@@ -63,7 +62,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 
 		// auth test
 		r.Route("/priv", func(u chi.Router) {
-			u.Use(m.authMiddleware)
+			u.Use(m.authMiddleware.WithAccessToken)
 
 			u.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				httpx.Message(w, http.StatusOK, "this is private route")

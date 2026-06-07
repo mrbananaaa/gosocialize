@@ -35,7 +35,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	authService := auth.NewService(tokenService, argon2Hasher, db.Q)
 	userService := user.NewService(db.Q)
 
-	authMiddleware := middlewares.AuthMiddleware(tokenService)
+	authMiddleware := middlewares.NewAuth(tokenService)
 
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)

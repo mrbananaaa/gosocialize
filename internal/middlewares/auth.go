@@ -10,35 +10,44 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/platform/requestctx"
 )
 
-// WARN: refactor this to separate infrastructure service
-func AuthMiddleware(tokenSvc auth.TokenService) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			authHeader := r.Header.Get("Authorization")
+type AuthMiddleware struct {
+	token auth.TokenService
+}
 
-			if authHeader == "" {
-				httpx.Error(w, apperr.New(
-					apperr.Code.Unauthorized,
-					"missing token",
-				))
-				return
-			}
-
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-
-			claims, err := tokenSvc.Verify(tokenStr)
-			if err != nil {
-				httpx.Error(w, apperr.New(
-					apperr.Code.Unauthorized,
-					"invalid token",
-				))
-				return
-			}
-
-			user := requestctx.UserFromClaims(claims)
-			ctx := requestctx.WithUser(r.Context(), user)
-
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
+func NewAuth(
+	token auth.TokenService,
+) *AuthMiddleware {
+	return &AuthMiddleware{
+		token: token,
 	}
+}
+
+func (a *AuthMiddleware) WithAccessToken(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+
+		if authHeader == "" {
+			httpx.Error(w, apperr.New(
+				apperr.Code.Unauthorized,
+				"missing token",
+			))
+			return
+		}
+
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+
+		claims, err := a.token.Verify(tokenStr)
+		if err != nil {
+			httpx.Error(w, apperr.New(
+				apperr.Code.Unauthorized,
+				"invalid token",
+			))
+			return
+		}
+
+		user := requestctx.UserFromClaims(claims)
+		ctx := requestctx.WithUser(r.Context(), user)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
