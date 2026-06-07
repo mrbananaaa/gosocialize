@@ -2,6 +2,8 @@ package httpx
 
 import (
 	"net/http"
+
+	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 )
 
 func SetRefreshToken(w http.ResponseWriter, token string) {
@@ -11,7 +13,7 @@ func SetRefreshToken(w http.ResponseWriter, token string) {
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
-		// Path:     "/v1/auth/refresh",
+		Path:     "/v1/auth/refresh",
 	})
 }
 
@@ -28,7 +30,10 @@ func CleanRefreshToken(w http.ResponseWriter) {
 func GetRefreshToken(r *http.Request) (string, error) {
 	token, err := r.Cookie("refresh_token")
 	if err != nil {
-		return "", err
+		return "", apperr.New(
+			apperr.Code.Unauthorized,
+			"invalid refresh token",
+		)
 	}
 
 	return token.Value, nil

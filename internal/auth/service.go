@@ -81,40 +81,86 @@ type LoginInput struct {
 	Password string
 }
 
+type LoginPayload struct {
+	RefreshToken string
+	AccessToken  string
+}
+
 func (s *Service) Login(
 	ctx context.Context,
 	input LoginInput,
-) (string, error) {
+) (*LoginPayload, error) {
 	u, err := s.q.GetUserByUsername(ctx, input.Username)
 	if err != nil {
 		err = postgres.PgErrMapper(err)
 
 		if errors.Is(err, apperr.ErrNotFound) {
-			return "", apperr.New(
+			return nil, apperr.New(
 				apperr.Code.Unauthorized,
 				"invalid username/password",
 			)
 		}
 
-		return "", err
+		return nil, err
 	}
 
 	match, err := s.hasher.Compare(input.Password, u.Password)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if !match {
-		return "", apperr.New(
+		return nil, apperr.New(
 			apperr.Code.Unauthorized,
 			"invalid username/password",
 		)
 	}
 
-	token, err := s.token.Generate(u.ID.String(), "user")
+	accessToken, err := s.token.GenerateAccess(u.ID.String(), "user")
 	if err != nil {
-		return "", apperr.ErrInternal
+		return nil, apperr.ErrInternal
 	}
 
-	return token, nil
+	refreshToken, err := s.token.GenerateRefresh(u.ID.String())
+	if err != nil {
+		return nil, apperr.ErrInternal
+	}
+
+	return &LoginPayload{
+		RefreshToken: refreshToken,
+		AccessToken:  accessToken,
+	}, nil
+}
+
+type RefreshInput struct {
+	RefreshToken string
+}
+
+type RefreshOutput struct {
+	AccessToken string
+}
+
+func (s *Service) Refresh(
+	ctx context.Context,
+	input RefreshInput,
+) (*RefreshOutput, error) {
+	claims, err := s.token.Verify(input.RefreshToken)
+	if err != nil {
+		return nil, apperr.New(
+			apperr.Code.Unauthorized,
+			"invalid refresh token",
+		)
+	}
+
+	accessToken, err := s.token.GenerateAccess(claims.UserID.String(), "user")
+	if err != nil {
+		return nil, apperr.New(
+			apperr.Code.Internal,
+			"internal server error",
+		)
+	}
+
+	return &RefreshOutput{
+		AccessToken: accessToken,
+	}, nil
 }

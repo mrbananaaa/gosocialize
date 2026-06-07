@@ -18,7 +18,7 @@ func New() *JWTService {
 	}
 }
 
-func (s *JWTService) Generate(userID string, role string) (string, error) {
+func (s *JWTService) GenerateAccess(userID string, role string) (string, error) {
 	claims := jwtClaims{
 		UserID: userID,
 		Role:   role,
@@ -58,4 +58,21 @@ func (s *JWTService) Verify(tokenStr string) (*auth.Claims, error) {
 		UserID: userID,
 		Role:   claims.Role,
 	}, nil
+}
+
+func (s *JWTService) GenerateRefresh(userID string) (string, error) {
+	claims := jwtClaims{
+		UserID: userID,
+		Role:   "user",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "gosocialize",
+			Subject:   userID,
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * 24 * time.Hour)),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(s.secret)
 }

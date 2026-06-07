@@ -99,8 +99,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// token
-	token, err := h.authService.Login(r.Context(), LoginInput{
+	t, err := h.authService.Login(r.Context(), LoginInput{
 		Username: req.Username,
 		Password: req.Password,
 	})
@@ -110,7 +109,34 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	httpx.SetRefreshToken(w, t.RefreshToken)
+
 	httpx.OK(w, SignInResponse{
-		AccessToken: token,
+		AccessToken: t.AccessToken,
+	})
+}
+
+type RefreshResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	refresh, err := httpx.GetRefreshToken(r)
+	if err != nil {
+		logger.Error("couldn't get refresh token from cookies", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	token, err := h.authService.Refresh(r.Context(), RefreshInput{
+		RefreshToken: refresh,
+	})
+	if err != nil {
+		httpx.Error(w, err)
+		return
+	}
+
+	httpx.OK(w, RefreshResponse{
+		AccessToken: token.AccessToken,
 	})
 }

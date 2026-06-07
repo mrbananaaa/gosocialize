@@ -7,6 +7,7 @@ func (h *Handler) Routes() chi.Router {
 
 	r.Post("/signup", h.SignUp)
 	r.Post("/signin", h.SignIn)
+	r.Get("/refresh", h.RefreshToken)
 
 	return r
 }

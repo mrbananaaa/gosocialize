@@ -10,6 +10,7 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/platform/requestctx"
 )
 
+// WARN: refactor this to separate infrastructure service
 func AuthMiddleware(tokenSvc auth.TokenService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
