@@ -19,6 +19,7 @@ import (
 type Server struct {
 	httpServer *http.Server
 	config     *config.Config
+	db         *postgres.DB
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
@@ -62,6 +63,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	return &Server{
 		httpServer: httpServer,
 		config:     cfg,
+		db:         db,
 	}, nil
 }
 
@@ -78,5 +80,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
+	defer s.db.Close()
+
 	return s.httpServer.Shutdown(ctx)
 }

@@ -44,6 +44,11 @@ func New(conn string) (*DB, error) {
 	}, nil
 }
 
+func (db *DB) Close() {
+	db.Pool.Close()
+	logger.Info("database pool closed 🔌")
+}
+
 func (db *DB) WithTx(
 	ctx context.Context,
 	fn func(*sqlc.Queries) error,
