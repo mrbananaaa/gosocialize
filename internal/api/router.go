@@ -61,10 +61,10 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 		})
 
 		// auth test
-		r.Route("/priv", func(u chi.Router) {
-			u.Use(m.authMiddleware.WithAccessToken)
+		u.Route("/priv", func(x chi.Router) {
+			x.Use(m.authMiddleware.WithAccessToken)
 
-			u.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			x.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				httpx.Message(w, http.StatusOK, "this is private route")
 			})
 		})
