@@ -1,0 +1,25 @@
+### SignUp
+# @name signup
+POST {{base.url}}/auth/signup
+Content-Type: application/json
+
+{
+    "email": "dev@test.mail",
+    "username": "nononofurbusiness",
+    "password": "isnotsafehere",
+    "name": "ahaaa gotcha!"
+}
+
+### SignIn
+# @name signin
+POST {{base.url}}/auth/signin
+Content-Type: application/json
+
+{
+    "username": "nononofurbusiness",
+    "password": "isnotsafehere"
+}
+
+### Refresh
+# @name refresh
+GET {{base.url}}/auth/refresh
