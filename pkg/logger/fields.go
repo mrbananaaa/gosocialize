@@ -10,6 +10,10 @@ func Int(key string, value int) zap.Field {
 	return zap.Int(key, value)
 }
 
+func Int64(key string, value int64) zap.Field {
+	return zap.Int64(key, value)
+}
+
 func Bool(key string, value bool) zap.Field {
 	return zap.Bool(key, value)
 }
