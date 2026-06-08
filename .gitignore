@@ -5,3 +5,4 @@ bin/
 
 .direnv
 .envrc
+resterm.env.json
