@@ -7,15 +7,18 @@ import (
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/internal/api"
-	"github.com/mrbananaaa/gosocialize/pkg/config"
+	"github.com/mrbananaaa/gosocialize/internal/platform/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 
-	err := logger.Init(logger.Config{
-		Development: cfg.IsDev(),
+	err = logger.Init(logger.Config{
+		Development: cfg.App.Env == "development",
 	})
 	if err != nil {
 		panic(err)

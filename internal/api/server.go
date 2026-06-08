@@ -9,10 +9,10 @@ import (
 
 	"github.com/mrbananaaa/gosocialize/internal/auth"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
+	"github.com/mrbananaaa/gosocialize/internal/platform/config"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/jwt"
 	"github.com/mrbananaaa/gosocialize/internal/user"
-	"github.com/mrbananaaa/gosocialize/pkg/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
