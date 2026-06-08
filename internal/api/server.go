@@ -36,6 +36,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	userService := user.NewService(db.Q)
 
 	authMiddleware := middlewares.NewAuth(tokenService)
+	loggerMiddleware := middlewares.NewLogger()
 
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)
@@ -46,7 +47,8 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	}
 
 	middlewares := Middlewares{
-		authMiddleware: authMiddleware,
+		authMiddleware:   authMiddleware,
+		loggerMiddleware: loggerMiddleware,
 	}
 
 	mux := NewRouter(handlers, middlewares)

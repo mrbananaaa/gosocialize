@@ -19,7 +19,8 @@ type Handlers struct {
 }
 
 type Middlewares struct {
-	authMiddleware *middlewares.AuthMiddleware
+	authMiddleware   *middlewares.AuthMiddleware
+	loggerMiddleware *middlewares.LoggerMiddleware
 }
 
 func NewRouter(h Handlers, m Middlewares) http.Handler {
@@ -27,7 +28,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.ClientIPFromHeader("X-Real-IP"))
-	r.Use(middleware.Logger)
+	r.Use(m.loggerMiddleware.RequestLogger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		// TODO: change cors origin
