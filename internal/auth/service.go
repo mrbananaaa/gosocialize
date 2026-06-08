@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/mrbananaaa/gosocialize/internal/domain"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/internal/user"
 )
 
 type Service struct {
@@ -40,7 +40,7 @@ type RegisterInput struct {
 func (s *Service) Register(
 	ctx context.Context,
 	input RegisterInput,
-) (*domain.User, error) {
+) (*user.User, error) {
 	userID := uuid.New()
 	creationTime := time.Now()
 	passwordHash, err := s.hasher.Hash(input.Password)
@@ -65,7 +65,7 @@ func (s *Service) Register(
 		return nil, err
 	}
 
-	return &domain.User{
+	return &user.User{
 		ID:        u.ID,
 		Email:     u.Email,
 		Username:  u.Username,
