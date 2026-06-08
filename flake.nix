@@ -28,6 +28,7 @@
             jq
             bruno
             lazygit
+            resterm
           ];
 
           shellHook = ''
