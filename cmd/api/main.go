@@ -7,15 +7,18 @@ import (
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/internal/api"
-	"github.com/mrbananaaa/gosocialize/pkg/config"
+	"github.com/mrbananaaa/gosocialize/internal/platform/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 
-	err := logger.Init(logger.Config{
-		Development: cfg.IsDev(),
+	err = logger.Init(logger.Config{
+		Development: cfg.App.Env == "development",
 	})
 	if err != nil {
 		panic(err)
@@ -24,7 +27,8 @@ func main() {
 
 	s, err := api.NewServer(cfg)
 	if err != nil {
-		panic(err)
+		logger.Error("Failed to initialize server ❌", logger.ErrorField(err))
+		return
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -38,21 +42,21 @@ func main() {
 		)
 		if err := s.Run(); err != nil {
 			logger.Fatal(
-				"Failed to start the app",
+				"Failed to start the app ⚠️",
 				err,
 			)
 		}
 	}()
 
 	<-ctx.Done()
-	logger.Warn("Shutting down server...")
+	logger.Warn("Shutting down server... ⏳")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	if err := s.Shutdown(shutdownCtx); err != nil {
-		logger.Fatal("Failed to shutdown http server", err)
+		logger.Fatal("Failed to shutdown http server ⚠️", err)
 	}
 
-	logger.Warn("Server closed gracefully")
+	logger.Warn("Server closed gracefully ✅")
 }

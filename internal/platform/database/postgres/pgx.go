@@ -27,7 +27,7 @@ func New(conn string) (*DB, error) {
 			err := pool.Ping(context.Background())
 			if err != nil {
 				try++
-				logger.Warn("Failed to reach database", logger.Int("try_count", try))
+				logger.Warn("Failed to reach database 💣", logger.Int("try_count", try))
 			}
 
 			if try >= 5 {
@@ -42,6 +42,11 @@ func New(conn string) (*DB, error) {
 		Pool: pool,
 		Q:    sqlc.New(pool),
 	}, nil
+}
+
+func (db *DB) Close() {
+	db.Pool.Close()
+	logger.Warn("database pool closed 🔌")
 }
 
 func (db *DB) WithTx(
