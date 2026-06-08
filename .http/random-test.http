@@ -1,0 +1,4 @@
+### Private route
+# @name priv
+# @auth Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZmRkZjhmNS0zYjM4LTQ4YjMtYjAxZC0xZjA0MmUwYTExYTIiLCJyb2xlIjoidXNlciIsImlzcyI6Imdvc29jaWFsaXplIiwiZXhwIjoxNzgwOTAxMzQxLCJpYXQiOjE3ODA5MDA0NDF9.iHQZPcLayeVMC33j0BAb990494IoKxzzRWaBlpFZ3ZQ
+GET {{base.url}}/priv
