@@ -30,6 +30,10 @@ dev: clean watch
 windows-dev:
 	@air -c .air.windows.toml
 
+.PHONY: seed
+seed:
+	@go run ./cmd/seed
+
 .PHONY: compose-up
 compose-up:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d
@@ -38,6 +42,9 @@ compose-up:
 compose-up-build:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
 
+.PHONY: compose-restart
+compose-restart:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) restart
 .PHONY: compose-down
 compose-down:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down
