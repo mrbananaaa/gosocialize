@@ -3,7 +3,7 @@ export
 
 API_ENTRY_POINT := cmd/api/main.go
 
-DOCKER_COMPOSE_FILE := compose.yml
+DOCKER_COMPOSE_FILE := docker-compose.yaml
 
 .PHONY: build
 build:

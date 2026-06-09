@@ -17,5 +17,24 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    image: gosocialize
+    build:
+      context: .
+      dockerfile: ./dockerfile
+      target: dev
+    init: true
+    volumes:
+      - type: bind
+        source: .
+        target: /app/
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
 volumes:
   postgres_data:
