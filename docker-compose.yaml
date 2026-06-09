@@ -21,19 +21,20 @@ services:
     image: gosocialize
     build:
       context: .
-      dockerfile: ./dockerfile
+      dockerfile: ./Dockerfile
       target: dev
     init: true
     volumes:
-      - type: bind
-        source: .
-        target: /app/
+      - .:/app
+      - /app/bin
     depends_on:
       - postgres
     env_file:
       - .env
     ports:
       - 8080:8080
+    stdin_open: true
+    tty: true
     restart: unless-stopped
 
 volumes:

@@ -34,6 +34,10 @@ windows-dev:
 compose-up:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 
+.PHONY: compose-up-build
+compose-up-build:
+	@docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
+
 .PHONY: compose-down
 compose-down:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down
@@ -54,6 +58,7 @@ help:
 	@echo "  make dev"
 	@echo "  make windows-dev"
 	@echo "  make compose-up"
+	@echo "  make compose-up-build"
 	@echo "  make compose-down"
 	@echo "  make compose-logs"
 	@echo "  make psql"
