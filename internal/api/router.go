@@ -10,12 +10,14 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/auth"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
+	"github.com/mrbananaaa/gosocialize/internal/post"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 )
 
 type Handlers struct {
 	authHandler *auth.Handler
 	userHandler *user.Handler
+	postHandler *post.Handler
 }
 
 type Middlewares struct {
@@ -43,6 +45,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 	r.Route("/v1", func(u chi.Router) {
 		u.Mount("/auth", h.authHandler.Routes())
 		u.Mount("/user", h.userHandler.Routes())
+		u.Mount("/post", h.postHandler.Routes())
 
 		// TODO: move this to separate packages
 		u.Get("/health", func(w http.ResponseWriter, r *http.Request) {

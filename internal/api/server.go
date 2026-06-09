@@ -12,6 +12,7 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/platform/config"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/jwt"
+	"github.com/mrbananaaa/gosocialize/internal/post"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
@@ -35,16 +36,19 @@ func NewServer(cfg *config.Config) (*Server, error) {
 
 	authService := auth.NewService(tokenService, argon2Hasher, db.Q)
 	userService := user.NewService(db.Q)
+	postService := post.NewService(db.Q)
 
 	authMiddleware := middlewares.NewAuth(tokenService)
 	loggerMiddleware := middlewares.NewLogger()
 
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)
+	postHandler := post.NewHandler(postService)
 
 	handlers := Handlers{
 		authHandler: authHandler,
 		userHandler: userHandler,
+		postHandler: postHandler,
 	}
 
 	middlewares := Middlewares{
