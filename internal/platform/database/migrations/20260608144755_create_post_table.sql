@@ -18,7 +18,7 @@ CREATE INDEX IF NOT EXISTS
   ON posts (user_id);
 
 -- +goose Down
-DROP CONSTRAINT IF EXISTS fk_user_post;
+ALTER TABLE posts DROP CONSTRAINT fk_user_post;
 DROP INDEX IF EXISTS idx_posts_user_id;
 
 DROP TABLE posts;
