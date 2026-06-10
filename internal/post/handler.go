@@ -29,17 +29,17 @@ func (h *Handler) GetAllPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	posts, nextCursor, err := h.postService.ListPosts(r.Context(), cursorStr, limit)
+	p, err := h.postService.ListPosts(r.Context(), cursorStr, limit)
 	if err != nil {
 		httpx.Error(w, err)
 		return
 	}
 
-	logger.Info("posts length", logger.Int("length", len(posts)))
+	logger.Info("posts length", logger.Int("length", len(p.Posts)))
 
-	httpx.OK(w, posts, httpx.WithPaginationMeta(httpx.PaginationMeta{
-		NextCursor: nextCursor,
-		HasMore:    nextCursor != "",
+	httpx.OK(w, p.Posts, httpx.WithPaginationMeta(httpx.PaginationMeta{
+		NextCursor: p.NextCursor,
+		HasMore:    p.HasMore,
 	}))
 }
 

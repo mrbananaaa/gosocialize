@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
 type Service struct {
@@ -98,37 +99,62 @@ type PostCursor struct {
 	ID        uuid.UUID
 }
 
+type ListPostsPayload struct {
+	Posts      []Post
+	NextCursor string
+	HasMore    bool
+}
+
 func (s *Service) ListPosts(
 	ctx context.Context,
 	cursorStr string,
 	limit int32,
-) ([]Post, string, error) {
+) (*ListPostsPayload, error) {
 	cursor, err := decodeCursor(cursorStr)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	params := sqlc.ListPostsParams{
-		PaginationLimit: limit + 1,
-	}
+	paginationLimit := limit + 1
 
-	if cursor != nil {
-		params.CursorCreatedAt = pgtype.Timestamptz{
-			Time:  cursor.CreatedAt,
-			Valid: true,
+	var rows []sqlc.Post
+	if cursor == nil {
+		logger.Info("Post first fired")
+		rows, err = s.q.ListPostsFirst(ctx, paginationLimit)
+		if err != nil {
+			return nil, err
 		}
-		params.CursorID = cursor.ID
+	} else {
+		logger.Info("Post after fired")
+
+		rows, err = s.q.ListPostsAfter(ctx, sqlc.ListPostsAfterParams{
+			CursorCreatedAt: pgtype.Timestamptz{
+				Time:  cursor.CreatedAt,
+				Valid: true,
+			},
+			CursorID:        cursor.ID,
+			PaginationLimit: paginationLimit,
+		})
 	}
 
-	rows, err := s.q.ListPosts(ctx, params)
-	if err != nil {
-		return nil, "", err
+	var p []Post
+	for _, post := range rows {
+		p = append(p, Post{
+			ID:        post.ID,
+			UserID:    post.UserID,
+			Title:     post.Title,
+			Content:   post.Content,
+			CreatedAt: post.CreatedAt,
+			UpdatedAt: post.UpdatedAt,
+		})
 	}
 
 	hasMore := len(rows) > int(limit)
+	if hasMore {
+		p = p[:limit]
+	}
 
 	var nextCursor string
-
 	if hasMore && len(rows) > 0 {
 		last := rows[len(rows)-1]
 
@@ -141,19 +167,11 @@ func (s *Service) ListPosts(
 		nextCursor = base64.StdEncoding.EncodeToString(b)
 	}
 
-	var posts []Post
-	for _, p := range rows {
-		posts = append(posts, Post{
-			ID:        p.ID,
-			UserID:    p.UserID,
-			Title:     p.Title,
-			Content:   p.Content,
-			CreatedAt: p.CreatedAt,
-			UpdatedAt: p.UpdatedAt,
-		})
-	}
-
-	return posts, nextCursor, nil
+	return &ListPostsPayload{
+		Posts:      p,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}, nil
 }
 
 func decodeCursor(s string) (*PostCursor, error) {
