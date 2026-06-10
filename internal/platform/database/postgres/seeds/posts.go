@@ -32,7 +32,7 @@ func SeedPosts(
 			ID:        uuid.New(),
 			UserID:    userID,
 			Title:     gofakeit.LoremIpsumSentence(16),
-			Content:   gofakeit.Paragraph(),
+			Content:   gofakeit.LoremIpsumParagraph(10, 20, 15, " "),
 			CreatedAt: now,
 			UpdatedAt: now,
 		}
