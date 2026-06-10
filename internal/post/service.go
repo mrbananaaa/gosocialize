@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
@@ -54,34 +53,6 @@ func (s *Service) Create(
 
 	return p, nil
 }
-
-func (s *Service) GetPosts(
-	ctx context.Context,
-) ([]*Post, error) {
-	var posts []*Post
-
-	p, err := s.q.GetPost(ctx)
-	if err != nil {
-		err = postgres.PgErrMapper(err)
-		return nil, err
-	}
-
-	for _, post := range p {
-		posts = append(posts, &Post{
-			ID:        post.ID,
-			UserID:    post.UserID,
-			Title:     post.Title,
-			Content:   post.Content,
-			Tags:      []string{},
-			CreatedAt: post.CreatedAt,
-			UpdatedAt: post.UpdatedAt,
-		})
-	}
-
-	return posts, nil
-}
-
-func (s *Service) GetPost() {}
 
 type DeleteInput struct {
 	ID uuid.UUID
