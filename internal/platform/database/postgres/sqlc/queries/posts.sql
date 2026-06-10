@@ -28,3 +28,22 @@ ORDER BY
   created_at DESC, id DESC
 LIMIT
   sqlc.arg(pagination_limit);
+
+-- name: ListPostsFirst :many
+SELECT
+  id, user_id, title, content, created_at, updated_at
+FROM posts
+ORDER BY created_at DESC, id DESC
+LIMIT sqlc.arg(pagination_limit);
+
+-- name: ListPostsAfter :many
+SELECT
+  id, user_id, title, content, created_at, updated_at
+FROM posts
+WHERE
+  (created_at, id) < (
+    sqlc.arg(cursor_created_at)::timestamptz,
+    sqlc.arg(cursor_id)::uuid
+  )
+ORDER BY created_at DESC, id DESC
+LIMIT sqlc.arg(pagination_limit);

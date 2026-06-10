@@ -127,3 +127,84 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 	}
 	return items, nil
 }
+
+const listPostsAfter = `-- name: ListPostsAfter :many
+SELECT
+  id, user_id, title, content, created_at, updated_at
+FROM posts
+WHERE
+  (created_at, id) < (
+    $1::timestamptz,
+    $2::uuid
+  )
+ORDER BY created_at DESC, id DESC
+LIMIT $3
+`
+
+type ListPostsAfterParams struct {
+	CursorCreatedAt pgtype.Timestamptz
+	CursorID        uuid.UUID
+	PaginationLimit int32
+}
+
+func (q *Queries) ListPostsAfter(ctx context.Context, arg ListPostsAfterParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, listPostsAfter, arg.CursorCreatedAt, arg.CursorID, arg.PaginationLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPostsFirst = `-- name: ListPostsFirst :many
+SELECT
+  id, user_id, title, content, created_at, updated_at
+FROM posts
+ORDER BY created_at DESC, id DESC
+LIMIT $1
+`
+
+func (q *Queries) ListPostsFirst(ctx context.Context, paginationLimit int32) ([]Post, error) {
+	rows, err := q.db.Query(ctx, listPostsFirst, paginationLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
