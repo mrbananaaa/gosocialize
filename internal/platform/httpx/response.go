@@ -5,17 +5,16 @@ import (
 	"net/http"
 )
 
-type Meta struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
-	Total int `json:"total"`
-}
-
 type Response struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
 	Data    any    `json:"data,omitempty"`
-	Meta    Meta   `json:"meta,omitzero"`
+	Meta    any    `json:"meta,omitzero"`
+}
+
+type PaginationMeta struct {
+	NextCursor string `json:"next_cursor"` // base64encoded
+	HasMore    bool   `json:"has_more"`
 }
 
 func writeJSON(
@@ -29,11 +28,17 @@ func writeJSON(
 	_ = json.NewEncoder(w).Encode(payload)
 }
 
-func OK(w http.ResponseWriter, data any) {
-	writeJSON(w, http.StatusOK, Response{
+func OK(w http.ResponseWriter, data any, opts ...ResponseOptions) {
+	res := &Response{
 		Success: true,
 		Data:    data,
-	})
+	}
+
+	for _, opt := range opts {
+		opt(res)
+	}
+
+	writeJSON(w, http.StatusOK, res)
 }
 
 func Created(w http.ResponseWriter, data any) {
@@ -48,4 +53,12 @@ func Message(w http.ResponseWriter, status int, msg string) {
 		Success: status < 400,
 		Message: msg,
 	})
+}
+
+type ResponseOptions func(*Response)
+
+func WithPaginationMeta(m PaginationMeta) ResponseOptions {
+	return func(r *Response) {
+		r.Meta = m
+	}
 }
