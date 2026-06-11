@@ -42,6 +42,17 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 	return err
 }
 
+const deletePost = `-- name: DeletePost :exec
+DELETE 
+FROM posts
+WHERE id = $1
+`
+
+func (q *Queries) DeletePost(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deletePost, id)
+	return err
+}
+
 const findPostByID = `-- name: FindPostByID :one
 SELECT
   id, user_id, title, content, created_at, updated_at

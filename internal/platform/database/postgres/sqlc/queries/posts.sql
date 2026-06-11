@@ -38,3 +38,8 @@ SET
   content = $3,
   updated_at = NOW()
 WHERE id = $1;
+
+-- name: DeletePost :exec
+DELETE 
+FROM posts
+WHERE id = $1;
