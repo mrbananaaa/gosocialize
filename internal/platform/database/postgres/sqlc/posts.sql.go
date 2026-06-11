@@ -42,7 +42,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 	return err
 }
 
-const getPostByID = `-- name: GetPostByID :one
+const findPostByID = `-- name: FindPostByID :one
 SELECT
   id, user_id, title, content, created_at, updated_at
 FROM posts
@@ -50,8 +50,8 @@ WHERE
   id = $1
 `
 
-func (q *Queries) GetPostByID(ctx context.Context, postID uuid.UUID) (Post, error) {
-	row := q.db.QueryRow(ctx, getPostByID, postID)
+func (q *Queries) FindPostByID(ctx context.Context, postID uuid.UUID) (Post, error) {
+	row := q.db.QueryRow(ctx, findPostByID, postID)
 	var i Post
 	err := row.Scan(
 		&i.ID,

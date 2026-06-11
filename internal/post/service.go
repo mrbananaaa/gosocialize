@@ -65,7 +65,7 @@ func (s *Service) GetByID(
 	ctx context.Context,
 	postID uuid.UUID,
 ) (*Post, error) {
-	post, err := s.q.GetPostByID(ctx, postID)
+	post, err := s.q.FindPostByID(ctx, postID)
 	if err != nil {
 		err = postgres.PgErrMapper(err)
 		return nil, err
