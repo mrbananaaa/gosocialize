@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
+	"github.com/mrbananaaa/gosocialize/internal/platform/requestctx"
 	"github.com/mrbananaaa/gosocialize/internal/platform/validator"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 	"github.com/mrbananaaa/gosocialize/pkg/pagination"
@@ -109,4 +110,60 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.OK(w, post)
+}
+
+type UpdatePostRequest struct {
+	Title   string `json:"title" validate:"max=255"`
+	Content string `json:"content"`
+}
+
+func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
+	postIDStr := chi.URLParam(r, "postID")
+	postID, err := uuid.Parse(postIDStr)
+	if err != nil {
+		logger.Error("failed to parse uuid", logger.ErrorField(err))
+		httpx.Error(w, apperr.InvalidUUIDErr(err, "post_id"))
+		return
+	}
+
+	userCtx, exists := requestctx.UserFromContext(r.Context())
+	if !exists {
+		logger.Error("Couldn't get user from context", logger.ErrorField(err))
+		httpx.Error(w, apperr.ErrUnauthorized)
+		return
+	}
+
+	var req UpdatePostRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Error("failed to parse request body", logger.ErrorField(err))
+		httpx.Error(w, apperr.DecodeBodyErr(err))
+		return
+	}
+
+	if err := validator.ValidateStruct(req); err != nil {
+		logger.Error("failed to valdiate request body", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	logger.Debug(
+		"update post request body",
+		logger.String("title", req.Title),
+		logger.String("content", req.Content),
+	)
+
+	err = h.postService.UpdatePost(r.Context(), UpdatePostInput{
+		ID:      postID,
+		UserID:  userCtx.ID,
+		Title:   req.Title,
+		Content: req.Content,
+	})
+	if err != nil {
+		logger.Error("failed to update post", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	httpx.Message(w, http.StatusOK, "post updated!")
 }
