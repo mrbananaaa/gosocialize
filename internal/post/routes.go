@@ -13,12 +13,10 @@ func (h *Handler) Routes(
 	r.Get("/", h.ListPosts)
 	r.Get("/{postID}", h.GetPostByID)
 
-	// TODO: refactor and move create post with auth
-	r.Post("/", h.CreatePost)
-
 	r.Group(func(u chi.Router) {
 		u.Use(authMiddleware.WithAccessToken)
 
+		u.Post("/", h.CreatePost)
 		u.Patch("/{postID}", h.UpdatePost)
 	})
 

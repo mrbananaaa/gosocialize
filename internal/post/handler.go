@@ -52,12 +52,18 @@ func (h *Handler) ListPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 type CreatePostRequest struct {
-	UserID  string `json:"user_id" validate:"required,uuid"`
 	Title   string `json:"title" validate:"required,min=3,max=255"`
 	Content string `json:"content" validate:"required"`
 }
 
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	userCtx, exists := requestctx.UserFromContext(r.Context())
+	if !exists {
+		logger.Error("couldn't get user from context")
+		httpx.Error(w, apperr.ErrUnauthorized)
+		return
+	}
+
 	var req CreatePostRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -72,15 +78,8 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := uuid.Parse(req.UserID)
-	if err != nil {
-		logger.Error("failed to parse uuid", logger.ErrorField(err))
-		httpx.Error(w, apperr.InvalidUUIDErr(err, "user_id"))
-		return
-	}
-
 	post, err := h.postService.Create(r.Context(), CreateInput{
-		UserID:  userID,
+		UserID:  userCtx.ID,
 		Title:   req.Title,
 		Content: req.Content,
 	})
@@ -128,7 +127,7 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	userCtx, exists := requestctx.UserFromContext(r.Context())
 	if !exists {
-		logger.Error("Couldn't get user from context", logger.ErrorField(err))
+		logger.Error("couldn't get user from context")
 		httpx.Error(w, apperr.ErrUnauthorized)
 		return
 	}
