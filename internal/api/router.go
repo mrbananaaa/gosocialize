@@ -45,7 +45,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 	r.Route("/v1", func(u chi.Router) {
 		u.Mount("/auth", h.authHandler.Routes())
 		u.Mount("/user", h.userHandler.Routes())
-		u.Mount("/post", h.postHandler.Routes())
+		u.Mount("/post", h.postHandler.Routes(m.authMiddleware))
 
 		// TODO: move this to separate packages
 		u.Get("/health", func(w http.ResponseWriter, r *http.Request) {
