@@ -24,7 +24,7 @@ func NewHandler(postService *Service) *Handler {
 	}
 }
 
-func (h *Handler) GetAllPost(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ListPosts(w http.ResponseWriter, r *http.Request) {
 	limitStr := r.URL.Query().Get("limit")
 	cursorStr := r.URL.Query().Get("cursor")
 
