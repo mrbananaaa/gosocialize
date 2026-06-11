@@ -73,7 +73,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(req.UserID)
 	if err != nil {
 		logger.Error("failed to parse uuid", logger.ErrorField(err))
-		httpx.Error(w, err)
+		httpx.Error(w, apperr.InvalidUUIDErr(err, "user_id"))
 		return
 	}
 
