@@ -7,6 +7,8 @@ func (h *Handler) Routes() chi.Router {
 
 	r.Get("/", h.ListPosts)
 	r.Get("/{postID}", h.GetPostByID)
+
+	// TODO: refactor and move create post with auth
 	r.Post("/", h.CreatePost)
 
 	return r
