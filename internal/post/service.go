@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
 	"github.com/mrbananaaa/gosocialize/pkg/pagination"
@@ -163,4 +164,51 @@ func (s *Service) ListPosts(
 		NextCursor: nextCursor,
 		HasMore:    hasMore,
 	}, nil
+}
+
+type UpdatePostInput struct {
+	ID      uuid.UUID
+	UserID  uuid.UUID
+	Title   string
+	Content string
+}
+
+func (s *Service) UpdatePost(
+	ctx context.Context,
+	input UpdatePostInput,
+) error {
+	post, err := s.q.FindPostByID(ctx, input.ID)
+	if err != nil {
+		err = postgres.PgErrMapper(err)
+		return err
+	}
+
+	if post.UserID != input.UserID {
+		return apperr.ErrForbidden
+	}
+
+	var title, content string
+	if input.Title == "" {
+		title = post.Title
+	} else {
+		title = input.Title
+	}
+
+	if input.Content == "" {
+		content = post.Content
+	} else {
+		content = input.Content
+	}
+
+	err = s.q.UpdatePost(ctx, sqlc.UpdatePostParams{
+		ID:      post.ID,
+		Title:   title,
+		Content: content,
+	})
+	if err != nil {
+		err = postgres.PgErrMapper(err)
+		return err
+	}
+
+	return nil
 }
