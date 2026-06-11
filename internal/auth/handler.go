@@ -43,7 +43,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Error("failed to parse request body", logger.ErrorField(err))
-		httpx.Error(w, apperr.New("BAD REQUEST", "bad request body"))
+		httpx.Error(w, apperr.DecodeBodyErr(err))
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Error("failed to parse request body", logger.ErrorField(err))
-		httpx.Error(w, apperr.New("BAD REQUEST", "bad request body"))
+		httpx.Error(w, apperr.DecodeBodyErr(err))
 		return
 	}
 
