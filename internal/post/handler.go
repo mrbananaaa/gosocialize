@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
-	"github.com/mrbananaaa/gosocialize/pkg/logger"
+	"github.com/mrbananaaa/gosocialize/pkg/pagination"
 )
 
 type Handler struct {
@@ -29,15 +29,16 @@ func (h *Handler) GetAllPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	p, err := h.postService.ListPosts(r.Context(), cursorStr, limit)
+	p, err := h.postService.ListPosts(r.Context(), pagination.CursorQueryParam{
+		Cursor: cursorStr,
+		Limit:  limit,
+	})
 	if err != nil {
 		httpx.Error(w, err)
 		return
 	}
 
-	logger.Info("posts length", logger.Int("length", len(p.Posts)))
-
-	httpx.OK(w, p.Posts, httpx.WithPaginationMeta(httpx.PaginationMeta{
+	httpx.OK(w, p.Posts, httpx.WithPaginationMeta(pagination.PaginationMeta{
 		NextCursor: p.NextCursor,
 		HasMore:    p.HasMore,
 	}))

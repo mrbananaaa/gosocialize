@@ -2,14 +2,12 @@ package post
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
-	"github.com/mrbananaaa/gosocialize/pkg/logger"
+	"github.com/mrbananaaa/gosocialize/pkg/pagination"
 )
 
 type Service struct {
@@ -65,11 +63,6 @@ func (s *Service) Delete(
 	return nil
 }
 
-type PostCursor struct {
-	CreatedAt time.Time
-	ID        uuid.UUID
-}
-
 type ListPostsPayload struct {
 	Posts      []Post
 	NextCursor string
@@ -78,26 +71,22 @@ type ListPostsPayload struct {
 
 func (s *Service) ListPosts(
 	ctx context.Context,
-	cursorStr string,
-	limit int32,
+	cursorQuery pagination.CursorQueryParam,
 ) (*ListPostsPayload, error) {
-	cursor, err := decodeCursor(cursorStr)
+	cursor, err := pagination.DecodeCursor(cursorQuery.Cursor)
 	if err != nil {
 		return nil, err
 	}
 
-	paginationLimit := limit + 1
+	paginationLimit := cursorQuery.Limit + 1
 
 	var rows []sqlc.Post
 	if cursor == nil {
-		logger.Info("Post first fired")
 		rows, err = s.q.ListPostsFirst(ctx, paginationLimit)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		logger.Info("Post after fired")
-
 		rows, err = s.q.ListPostsAfter(ctx, sqlc.ListPostsAfterParams{
 			CursorCreatedAt: pgtype.Timestamptz{
 				Time:  cursor.CreatedAt,
@@ -120,22 +109,24 @@ func (s *Service) ListPosts(
 		})
 	}
 
-	hasMore := len(rows) > int(limit)
+	hasMore := len(rows) > int(cursorQuery.Limit)
 	if hasMore {
-		p = p[:limit]
+		p = p[:cursorQuery.Limit]
 	}
 
 	var nextCursor string
 	if hasMore && len(rows) > 0 {
 		last := rows[len(rows)-1]
 
-		c := PostCursor{
+		c := pagination.Cursor{
 			CreatedAt: last.CreatedAt,
 			ID:        last.ID,
 		}
 
-		b, _ := json.Marshal(c)
-		nextCursor = base64.StdEncoding.EncodeToString(b)
+		nextCursor, err = pagination.EncodeCursor(c)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &ListPostsPayload{
@@ -143,22 +134,4 @@ func (s *Service) ListPosts(
 		NextCursor: nextCursor,
 		HasMore:    hasMore,
 	}, nil
-}
-
-func decodeCursor(s string) (*PostCursor, error) {
-	if s == "" {
-		return nil, nil
-	}
-
-	b, err := base64.StdEncoding.DecodeString(s)
-	if err != nil {
-		return nil, err
-	}
-
-	var c PostCursor
-	if err := json.Unmarshal(b, &c); err != nil {
-		return nil, err
-	}
-
-	return &c, nil
 }
