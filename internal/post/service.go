@@ -61,6 +61,26 @@ func (s *Service) Create(
 	return p, nil
 }
 
+func (s *Service) GetByID(
+	ctx context.Context,
+	postID uuid.UUID,
+) (*Post, error) {
+	post, err := s.q.GetPostByID(ctx, postID)
+	if err != nil {
+		err = postgres.PgErrMapper(err)
+		return nil, err
+	}
+
+	return &Post{
+		ID:        post.ID,
+		UserID:    post.UserID,
+		Title:     post.Title,
+		Content:   post.Content,
+		CreatedAt: post.CreatedAt,
+		UpdatedAt: post.UpdatedAt,
+	}, nil
+}
+
 type DeleteInput struct {
 	ID uuid.UUID
 }
