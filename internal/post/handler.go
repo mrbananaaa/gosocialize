@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
@@ -89,4 +90,23 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.Created(w, post)
+}
+
+func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
+	postIDstr := chi.URLParam(r, "postID")
+	postID, err := uuid.Parse(postIDstr)
+	if err != nil {
+		logger.Error("failed to parse uuid", logger.ErrorField(err))
+		httpx.Error(w, apperr.InvalidUUIDErr(err, "post_id"))
+		return
+	}
+
+	post, err := h.postService.GetByID(r.Context(), postID)
+	if err != nil {
+		logger.Error("failed to get post", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	httpx.OK(w, post)
 }
