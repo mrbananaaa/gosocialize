@@ -23,3 +23,10 @@ WHERE
   )
 ORDER BY created_at DESC, id DESC
 LIMIT sqlc.arg(pagination_limit);
+
+-- name: GetPostByID :one
+SELECT
+  id, user_id, title, content, created_at, updated_at
+FROM posts
+WHERE
+  id = sqlc.arg(post_id);
