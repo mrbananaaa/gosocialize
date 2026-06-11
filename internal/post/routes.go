@@ -18,6 +18,7 @@ func (h *Handler) Routes(
 
 		u.Post("/", h.CreatePost)
 		u.Patch("/{postID}", h.UpdatePost)
+		u.Delete("/{postID}", h.DeletePost)
 	})
 
 	return r

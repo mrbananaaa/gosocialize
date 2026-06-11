@@ -166,3 +166,32 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	httpx.Message(w, http.StatusOK, "post updated!")
 }
+
+func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
+	postIDStr := chi.URLParam(r, "postID")
+	postID, err := uuid.Parse(postIDStr)
+	if err != nil {
+		logger.Error("failed to parse uuid", logger.ErrorField(err))
+		httpx.Error(w, apperr.InvalidUUIDErr(err, "post_id"))
+		return
+	}
+
+	userCtx, exists := requestctx.UserFromContext(r.Context())
+	if !exists {
+		logger.Error("couldn't get user from context")
+		httpx.Error(w, apperr.ErrUnauthorized)
+		return
+	}
+
+	err = h.postService.DeletePost(r.Context(), DeletePostInput{
+		ID:     postID,
+		UserID: userCtx.ID,
+	})
+	if err != nil {
+		logger.Error("couldn't delete post", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	httpx.Message(w, http.StatusOK, "post deleted!")
+}
