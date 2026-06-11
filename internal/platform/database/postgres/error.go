@@ -40,6 +40,13 @@ func PgErrMapper(err error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {
+		case ForeignKeyViolation:
+			return apperr.Wrap(
+				pgErr,
+				apperr.Code.UserNotFound,
+				fmt.Sprintf("%s are not found", resolveUniqueField(pgErr)),
+			)
+
 		case UniqueViolation:
 			constraint := resolveUniqueField(pgErr)
 
