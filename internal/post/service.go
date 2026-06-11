@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
 	"github.com/mrbananaaa/gosocialize/pkg/pagination"
 )
@@ -31,11 +32,6 @@ func (s *Service) Create(
 	ctx context.Context,
 	input CreateInput,
 ) (*Post, error) {
-
-	// check if the user id exists
-
-	// create post
-
 	id := uuid.New()
 	now := time.Now()
 
@@ -47,6 +43,19 @@ func (s *Service) Create(
 		Tags:      input.Tags,
 		CreatedAt: now,
 		UpdatedAt: now,
+	}
+
+	err := s.q.CreatePost(ctx, sqlc.CreatePostParams{
+		ID:        p.ID,
+		UserID:    p.UserID,
+		Title:     p.Title,
+		Content:   p.Content,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+	})
+	if err != nil {
+		err = postgres.PgErrMapper(err)
+		return nil, err
 	}
 
 	return p, nil
