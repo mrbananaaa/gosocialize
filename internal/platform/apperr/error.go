@@ -41,3 +41,11 @@ func Wrap(err error, code, message string) *Error {
 		Err:     err,
 	}
 }
+
+func DecodeBodyErr(err error) *Error {
+	return Wrap(
+		err,
+		Code.BadRequest,
+		"Bad request body",
+	)
+}
