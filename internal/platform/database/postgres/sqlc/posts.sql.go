@@ -144,3 +144,23 @@ func (q *Queries) ListPostsFirst(ctx context.Context, paginationLimit int32) ([]
 	}
 	return items, nil
 }
+
+const updatePost = `-- name: UpdatePost :exec
+UPDATE posts
+SET
+  title = $2,
+  content = $3,
+  updated_at = NOW()
+WHERE id = $1
+`
+
+type UpdatePostParams struct {
+	ID      uuid.UUID
+	Title   string
+	Content string
+}
+
+func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
+	_, err := q.db.Exec(ctx, updatePost, arg.ID, arg.Title, arg.Content)
+	return err
+}
