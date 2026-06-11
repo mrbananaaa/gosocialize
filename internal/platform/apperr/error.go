@@ -1,5 +1,7 @@
 package apperr
 
+import "fmt"
+
 var (
 	ErrConflict     = New(Code.Conflict, "")
 	ErrNotFound     = New(Code.NotFound, "")
@@ -47,5 +49,13 @@ func DecodeBodyErr(err error) *Error {
 		err,
 		Code.BadRequest,
 		"Bad request body",
+	)
+}
+
+func InvalidUUIDErr(err error, field string) *Error {
+	return Wrap(
+		err,
+		Code.BadRequest,
+		fmt.Sprintf("invalid uuid field - %s", field),
 	)
 }
