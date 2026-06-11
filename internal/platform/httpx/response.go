@@ -57,7 +57,7 @@ func Message(w http.ResponseWriter, status int, msg string) {
 
 type ResponseOptions func(*Response)
 
-func WithPaginationMeta(m PaginationMeta) ResponseOptions {
+func WithPaginationMeta(m any) ResponseOptions {
 	return func(r *Response) {
 		r.Meta = m
 	}
