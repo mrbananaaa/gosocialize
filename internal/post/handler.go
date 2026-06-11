@@ -1,10 +1,15 @@
 package post
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
+	"github.com/google/uuid"
+	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
+	"github.com/mrbananaaa/gosocialize/internal/platform/validator"
+	"github.com/mrbananaaa/gosocialize/pkg/logger"
 	"github.com/mrbananaaa/gosocialize/pkg/pagination"
 )
 
@@ -44,10 +49,44 @@ func (h *Handler) GetAllPost(w http.ResponseWriter, r *http.Request) {
 	}))
 }
 
-type GetPostQuery struct {
-	Limit  int
-	Cursor string // base64encoded
+type CreatePostRequest struct {
+	UserID  string `json:"user_id" validate:"required,uuid"`
+	Title   string `json:"title" validate:"required,min=3,max=255"`
+	Content string `json:"content" validate:"required"`
 }
 
-type GetPostResponse struct {
+func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	var req CreatePostRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Error("failed to parse request body", logger.ErrorField(err))
+		httpx.Error(w, apperr.DecodeBodyErr(err))
+		return
+	}
+
+	if err := validator.ValidateStruct(req); err != nil {
+		logger.Error("failed to valdiate request body", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		logger.Error("failed to parse uuid", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	post, err := h.postService.Create(r.Context(), CreateInput{
+		UserID:  userID,
+		Title:   req.Title,
+		Content: req.Content,
+	})
+	if err != nil {
+		logger.Error("failed to create post", logger.ErrorField(err))
+		httpx.Error(w, err)
+		return
+	}
+
+	httpx.Created(w, post)
 }
