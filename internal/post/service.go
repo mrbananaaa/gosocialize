@@ -82,17 +82,6 @@ func (s *Service) GetByID(
 	}, nil
 }
 
-type DeleteInput struct {
-	ID uuid.UUID
-}
-
-func (s *Service) Delete(
-	ctx context.Context,
-	input DeleteInput,
-) error {
-	return nil
-}
-
 type ListPostsPayload struct {
 	Posts      []Post
 	NextCursor string
@@ -208,6 +197,31 @@ func (s *Service) UpdatePost(
 	if err != nil {
 		err = postgres.PgErrMapper(err)
 		return err
+	}
+
+	return nil
+}
+
+type DeletePostInput struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (s *Service) DeletePost(
+	ctx context.Context,
+	input DeletePostInput,
+) error {
+	post, err := s.q.FindPostByID(ctx, input.ID)
+	if err != nil {
+		return postgres.PgErrMapper(err)
+	}
+
+	if post.UserID != input.UserID {
+		return apperr.ErrForbidden
+	}
+
+	if err := s.q.DeletePost(ctx, post.ID); err != nil {
+		return postgres.PgErrMapper(err)
 	}
 
 	return nil
