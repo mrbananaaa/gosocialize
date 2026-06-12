@@ -92,6 +92,7 @@ func (s *Service) ListPosts(
 ) (*ListPostsPayload, error) {
 	cursor, err := pagination.DecodeCursor(cursorQuery.Cursor)
 	if err != nil {
+		// TODO: wrap with apperr
 		return nil, err
 	}
 
@@ -145,6 +146,7 @@ func (s *Service) ListPosts(
 
 		nextCursor, err = pagination.EncodeCursor(c)
 		if err != nil {
+			// TODO: wrap with apperr
 			return nil, err
 		}
 	}
