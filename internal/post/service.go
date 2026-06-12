@@ -55,8 +55,7 @@ func (s *Service) Create(
 		UpdatedAt: p.UpdatedAt,
 	})
 	if err != nil {
-		err = postgres.PgErrMapper(err)
-		return nil, err
+		return nil, postgres.PgErrMapper(err)
 	}
 
 	return p, nil
@@ -68,8 +67,7 @@ func (s *Service) GetByID(
 ) (*Post, error) {
 	post, err := s.q.FindPostByID(ctx, postID)
 	if err != nil {
-		err = postgres.PgErrMapper(err)
-		return nil, err
+		return nil, postgres.PgErrMapper(err)
 	}
 
 	return &Post{
@@ -103,7 +101,7 @@ func (s *Service) ListPosts(
 	if cursor == nil {
 		rows, err = s.q.ListPostsFirst(ctx, paginationLimit)
 		if err != nil {
-			return nil, err
+			return nil, postgres.PgErrMapper(err)
 		}
 	} else {
 		rows, err = s.q.ListPostsAfter(ctx, sqlc.ListPostsAfterParams{
@@ -114,6 +112,9 @@ func (s *Service) ListPosts(
 			CursorID:        cursor.ID,
 			PaginationLimit: paginationLimit,
 		})
+		if err != nil {
+			return nil, postgres.PgErrMapper(err)
+		}
 	}
 
 	var p []Post
