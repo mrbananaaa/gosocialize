@@ -196,8 +196,7 @@ func (s *Service) UpdatePost(
 		Content: content,
 	})
 	if err != nil {
-		err = postgres.PgErrMapper(err)
-		return err
+		return postgres.PgErrMapper(err)
 	}
 
 	return nil
