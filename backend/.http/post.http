@@ -1,0 +1,7 @@
+### List all post
+# @name ListPost
+GET {{base.url}}/post
+
+### List all post with cursor
+# @name ListPost with Cursor
+GET {{base.url}}/post?limit=10&cursor=eyJjcmVhdGVkX2F0IjoiMjAyNi0wNi0xM1QwMzoyMzowNy4zMzg1NzNaIiwiaWQiOiIzMjBkYmI5My1hOTIxLTQwOWYtYmNhMi1mMmZkMzhiNjk3YzgifQ==

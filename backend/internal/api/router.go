@@ -52,7 +52,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 			d, err := json.Marshal(struct {
 				Message string `json:"message"`
 			}{
-				Message: "OK",
+				Message: "Helathcheck OK!",
 			})
 			if err != nil {
 				http.Error(w, "internal server error", http.StatusInternalServerError)
