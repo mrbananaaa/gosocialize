@@ -30,7 +30,7 @@ func SeedPosts(
 
 		p := sqlc.CreatePostParams{
 			ID:        uuid.New(),
-			UserID:    userID,
+			AuthorID:  userID,
 			Title:     gofakeit.LoremIpsumSentence(16),
 			Content:   gofakeit.LoremIpsumParagraph(10, 20, 15, " "),
 			CreatedAt: now,
