@@ -12,7 +12,7 @@ import (
 
 type Post struct {
 	ID        uuid.UUID
-	UserID    uuid.UUID
+	AuthorID  uuid.UUID
 	Title     string
 	Content   string
 	CreatedAt time.Time

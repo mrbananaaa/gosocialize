@@ -15,7 +15,7 @@ import (
 
 const createPost = `-- name: CreatePost :exec
 INSERT INTO posts (
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 ) VALUES (
   $1, $2, $3, $4, $5, $6
 )
@@ -23,7 +23,7 @@ INSERT INTO posts (
 
 type CreatePostParams struct {
 	ID        uuid.UUID
-	UserID    uuid.UUID
+	AuthorID  uuid.UUID
 	Title     string
 	Content   string
 	CreatedAt time.Time
@@ -33,7 +33,7 @@ type CreatePostParams struct {
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
 	_, err := q.db.Exec(ctx, createPost,
 		arg.ID,
-		arg.UserID,
+		arg.AuthorID,
 		arg.Title,
 		arg.Content,
 		arg.CreatedAt,
@@ -55,7 +55,7 @@ func (q *Queries) DeletePost(ctx context.Context, id uuid.UUID) error {
 
 const findPostByID = `-- name: FindPostByID :one
 SELECT
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 FROM posts
 WHERE
   id = $1
@@ -66,7 +66,7 @@ func (q *Queries) FindPostByID(ctx context.Context, postID uuid.UUID) (Post, err
 	var i Post
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
+		&i.AuthorID,
 		&i.Title,
 		&i.Content,
 		&i.CreatedAt,
@@ -77,7 +77,7 @@ func (q *Queries) FindPostByID(ctx context.Context, postID uuid.UUID) (Post, err
 
 const listPostsAfter = `-- name: ListPostsAfter :many
 SELECT
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 FROM posts
 WHERE
   (created_at, id) < (
@@ -105,7 +105,7 @@ func (q *Queries) ListPostsAfter(ctx context.Context, arg ListPostsAfterParams) 
 		var i Post
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.AuthorID,
 			&i.Title,
 			&i.Content,
 			&i.CreatedAt,
@@ -123,7 +123,7 @@ func (q *Queries) ListPostsAfter(ctx context.Context, arg ListPostsAfterParams) 
 
 const listPostsFirst = `-- name: ListPostsFirst :many
 SELECT
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 FROM posts
 ORDER BY created_at DESC, id DESC
 LIMIT $1
@@ -140,7 +140,7 @@ func (q *Queries) ListPostsFirst(ctx context.Context, paginationLimit int32) ([]
 		var i Post
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.AuthorID,
 			&i.Title,
 			&i.Content,
 			&i.CreatedAt,

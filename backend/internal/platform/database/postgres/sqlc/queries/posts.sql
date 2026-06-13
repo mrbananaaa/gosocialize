@@ -1,20 +1,20 @@
 -- name: CreatePost :exec
 INSERT INTO posts (
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 ) VALUES (
   $1, $2, $3, $4, $5, $6
 );
 
 -- name: ListPostsFirst :many
 SELECT
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 FROM posts
 ORDER BY created_at DESC, id DESC
 LIMIT sqlc.arg(pagination_limit);
 
 -- name: ListPostsAfter :many
 SELECT
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 FROM posts
 WHERE
   (created_at, id) < (
@@ -26,7 +26,7 @@ LIMIT sqlc.arg(pagination_limit);
 
 -- name: FindPostByID :one
 SELECT
-  id, user_id, title, content, created_at, updated_at
+  id, author_id, title, content, created_at, updated_at
 FROM posts
 WHERE
   id = sqlc.arg(post_id);

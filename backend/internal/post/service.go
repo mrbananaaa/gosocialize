@@ -23,10 +23,10 @@ func NewService(q *sqlc.Queries) *Service {
 }
 
 type CreateInput struct {
-	UserID  uuid.UUID
-	Title   string
-	Content string
-	Tags    []string
+	AuthorID uuid.UUID
+	Title    string
+	Content  string
+	Tags     []string
 }
 
 func (s *Service) Create(
@@ -38,7 +38,7 @@ func (s *Service) Create(
 
 	p := &Post{
 		ID:        id,
-		UserID:    input.UserID,
+		AuthorID:  input.AuthorID,
 		Title:     input.Title,
 		Content:   input.Content,
 		Tags:      input.Tags,
@@ -48,7 +48,7 @@ func (s *Service) Create(
 
 	err := s.q.CreatePost(ctx, sqlc.CreatePostParams{
 		ID:        p.ID,
-		UserID:    p.UserID,
+		AuthorID:  p.AuthorID,
 		Title:     p.Title,
 		Content:   p.Content,
 		CreatedAt: p.CreatedAt,
@@ -72,7 +72,7 @@ func (s *Service) GetByID(
 
 	return &Post{
 		ID:        post.ID,
-		UserID:    post.UserID,
+		AuthorID:  post.AuthorID,
 		Title:     post.Title,
 		Content:   post.Content,
 		CreatedAt: post.CreatedAt,
@@ -122,7 +122,7 @@ func (s *Service) ListPosts(
 	for _, post := range rows {
 		p = append(p, Post{
 			ID:        post.ID,
-			UserID:    post.UserID,
+			AuthorID:  post.AuthorID,
 			Title:     post.Title,
 			Content:   post.Content,
 			CreatedAt: post.CreatedAt,
@@ -175,7 +175,7 @@ func (s *Service) UpdatePost(
 		return err
 	}
 
-	if post.UserID != input.UserID {
+	if post.AuthorID != input.UserID {
 		return apperr.ErrForbidden
 	}
 
@@ -205,8 +205,8 @@ func (s *Service) UpdatePost(
 }
 
 type DeletePostInput struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+	ID       uuid.UUID
+	AuthorID uuid.UUID
 }
 
 func (s *Service) DeletePost(
@@ -218,7 +218,7 @@ func (s *Service) DeletePost(
 		return postgres.PgErrMapper(err)
 	}
 
-	if post.UserID != input.UserID {
+	if post.AuthorID != input.AuthorID {
 		return apperr.ErrForbidden
 	}
 

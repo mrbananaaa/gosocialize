@@ -79,9 +79,9 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post, err := h.postService.Create(r.Context(), CreateInput{
-		UserID:  userCtx.ID,
-		Title:   req.Title,
-		Content: req.Content,
+		AuthorID: userCtx.ID,
+		Title:    req.Title,
+		Content:  req.Content,
 	})
 	if err != nil {
 		logger.Error("failed to create post", logger.ErrorField(err))
@@ -184,8 +184,8 @@ func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.postService.DeletePost(r.Context(), DeletePostInput{
-		ID:     postID,
-		UserID: userCtx.ID,
+		ID:       postID,
+		AuthorID: userCtx.ID,
 	})
 	if err != nil {
 		logger.Error("couldn't delete post", logger.ErrorField(err))
