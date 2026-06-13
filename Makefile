@@ -29,6 +29,7 @@ psql:
 .PHONY: api/migrate
 api/migrate:
 	@echo "Migrating api"
+	@goose reset && goose up
 
 .PHONY: api/seed
 api/seed:
