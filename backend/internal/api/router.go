@@ -1,13 +1,13 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/health"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
 	"github.com/mrbananaaa/gosocialize/internal/post"
@@ -15,9 +15,10 @@ import (
 )
 
 type Handlers struct {
-	authHandler *auth.Handler
-	userHandler *user.Handler
-	postHandler *post.Handler
+	authHandler   *auth.Handler
+	userHandler   *user.Handler
+	postHandler   *post.Handler
+	healthHandler *health.Handler
 }
 
 type Middlewares struct {
@@ -46,23 +47,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 		u.Mount("/auth", h.authHandler.Routes())
 		u.Mount("/user", h.userHandler.Routes())
 		u.Mount("/post", h.postHandler.Routes(m.authMiddleware))
-
-		// TODO: move this to separate packages
-		u.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-			d, err := json.Marshal(struct {
-				Message string `json:"message"`
-			}{
-				Message: "Helathcheck OK!",
-			})
-			if err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write(d)
-		})
+		u.Mount("/health", h.healthHandler.Routes())
 
 		// auth test
 		u.Route("/priv", func(x chi.Router) {

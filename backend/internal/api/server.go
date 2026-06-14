@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/health"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/config"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
@@ -44,11 +45,13 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)
 	postHandler := post.NewHandler(postService)
+	healthHandler := health.NewHandler()
 
 	handlers := Handlers{
-		authHandler: authHandler,
-		userHandler: userHandler,
-		postHandler: postHandler,
+		authHandler:   authHandler,
+		userHandler:   userHandler,
+		postHandler:   postHandler,
+		healthHandler: healthHandler,
 	}
 
 	middlewares := Middlewares{
