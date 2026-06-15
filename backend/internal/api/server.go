@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/feed"
 	"github.com/mrbananaaa/gosocialize/internal/health"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/config"
@@ -38,6 +39,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	authService := auth.NewService(tokenService, argon2Hasher, db.Q)
 	userService := user.NewService(db.Q)
 	postService := post.NewService(db.Q)
+	feedService := feed.NewService(db.Q)
 
 	authMiddleware := middlewares.NewAuth(tokenService)
 	loggerMiddleware := middlewares.NewLogger()
@@ -45,12 +47,14 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService)
 	postHandler := post.NewHandler(postService)
+	feedHandler := feed.NewHandler(feedService)
 	healthHandler := health.NewHandler()
 
 	handlers := Handlers{
 		authHandler:   authHandler,
 		userHandler:   userHandler,
 		postHandler:   postHandler,
+		feedHandler:   feedHandler,
 		healthHandler: healthHandler,
 	}
 
