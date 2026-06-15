@@ -9,12 +9,12 @@ import (
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
-type DB struct {
+type Database struct {
 	Pool *pgxpool.Pool
 	Q    *sqlc.Queries
 }
 
-func New(conn string) (*DB, error) {
+func New(conn string) (*Database, error) {
 	pool, err := pgxpool.New(context.Background(), conn)
 	if err != nil {
 		return nil, err
@@ -38,18 +38,18 @@ func New(conn string) (*DB, error) {
 		}
 	}()
 
-	return &DB{
+	return &Database{
 		Pool: pool,
 		Q:    sqlc.New(pool),
 	}, nil
 }
 
-func (db *DB) Close() {
+func (db *Database) Close() {
 	db.Pool.Close()
 	logger.Warn("database pool closed 🔌")
 }
 
-func (db *DB) WithTx(
+func (db *Database) WithTx(
 	ctx context.Context,
 	fn func(*sqlc.Queries) error,
 ) error {

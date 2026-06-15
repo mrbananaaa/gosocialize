@@ -14,7 +14,7 @@ import (
 
 func Seed(
 	ctx context.Context,
-	db *postgres.DB,
+	db *postgres.Database,
 ) error {
 	logger.Info("Initialize seeding")
 
@@ -40,7 +40,7 @@ func Seed(
 
 func ResetDB(
 	ctx context.Context,
-	db *postgres.DB,
+	db *postgres.Database,
 ) error {
 	// collecting connection from pool
 	dbconn := stdlib.OpenDBFromPool(db.Pool)

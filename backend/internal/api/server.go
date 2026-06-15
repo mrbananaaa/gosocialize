@@ -22,7 +22,7 @@ import (
 type Server struct {
 	httpServer *http.Server
 	config     *config.Config
-	db         *postgres.DB
+	db         *postgres.Database
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
