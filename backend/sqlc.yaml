@@ -6,8 +6,8 @@ sql:
     queries: "internal/platform/database/postgres/sqlc/queries"
     gen:
       go:
-        package: "sqlc"
-        out: "internal/platform/database/postgres/sqlc"
+        package: "db"
+        out: "internal/platform/db"
         sql_package: "pgx/v5"
         overrides:
           - db_type: "uuid"
