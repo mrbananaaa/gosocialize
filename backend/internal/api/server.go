@@ -17,29 +17,30 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/post"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 type Server struct {
 	httpServer *http.Server
 	config     *config.Config
-	db         *postgres.Database
+	db         *postgres.DB
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
-	db, err := postgres.New(cfg.DB.URL)
+	db, err := postgres.NewDB(cfg.DB.URL)
 	if err != nil {
 		return nil, err
 	}
 
+	store := store.New(db.Pool)
+
 	tokenService := jwt.New()
 	argon2Hasher := auth.NewArgon2Hasher()
 
-	// userRepo := user.NewRepository()
-
-	authService := auth.NewService(tokenService, argon2Hasher, db.Q)
-	userService := user.NewService(db.Q)
-	postService := post.NewService(db.Q)
-	feedService := feed.NewService(db.Q)
+	authService := auth.NewService(tokenService, argon2Hasher, store)
+	userService := user.NewService(store)
+	postService := post.NewService(store)
+	feedService := feed.NewService(store)
 
 	authMiddleware := middlewares.NewAuth(tokenService)
 	loggerMiddleware := middlewares.NewLogger()

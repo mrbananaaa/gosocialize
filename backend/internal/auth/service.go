@@ -8,25 +8,26 @@ import (
 	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/internal/platform/db"
 	"github.com/mrbananaaa/gosocialize/internal/user"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 type Service struct {
 	token  TokenService
 	hasher PasswordHasher
-	q      *sqlc.Queries
+	store  *store.Store
 }
 
 func NewService(
 	token TokenService,
 	hasher PasswordHasher,
-	q *sqlc.Queries,
+	s *store.Store,
 ) *Service {
 	return &Service{
 		token:  token,
 		hasher: hasher,
-		q:      q,
+		store:  s,
 	}
 }
 
@@ -49,7 +50,7 @@ func (s *Service) Register(
 		return nil, err
 	}
 
-	u := sqlc.CreateUserParams{
+	u := db.CreateUserParams{
 		ID:        userID,
 		Email:     input.Email,
 		Username:  input.Username,
@@ -59,7 +60,7 @@ func (s *Service) Register(
 		UpdatedAt: creationTime,
 	}
 
-	err = s.q.CreateUser(ctx, u)
+	err = s.store.Q.CreateUser(ctx, u)
 	if err != nil {
 		err = postgres.PgErrMapper(err)
 		return nil, err
@@ -90,7 +91,7 @@ func (s *Service) Login(
 	ctx context.Context,
 	input LoginInput,
 ) (*LoginPayload, error) {
-	u, err := s.q.GetUserByUsername(ctx, input.Username)
+	u, err := s.store.Q.GetUserByUsername(ctx, input.Username)
 	if err != nil {
 		err = postgres.PgErrMapper(err)
 
@@ -136,14 +137,14 @@ type RefreshInput struct {
 	RefreshToken string
 }
 
-type RefreshOutput struct {
+type RefreshPayload struct {
 	AccessToken string
 }
 
 func (s *Service) Refresh(
 	ctx context.Context,
 	input RefreshInput,
-) (*RefreshOutput, error) {
+) (*RefreshPayload, error) {
 	claims, err := s.token.Verify(input.RefreshToken)
 	if err != nil {
 		return nil, apperr.New(
@@ -160,7 +161,7 @@ func (s *Service) Refresh(
 		)
 	}
 
-	return &RefreshOutput{
+	return &RefreshPayload{
 		AccessToken: accessToken,
 	}, nil
 }

@@ -2,10 +2,13 @@ package feed
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
 	"github.com/mrbananaaa/gosocialize/internal/platform/requestctx"
+	"github.com/mrbananaaa/gosocialize/internal/post"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
@@ -33,5 +36,35 @@ func (h *Handler) GetUserFeeds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.OK(w, feeds)
+	httpx.OK(w, toFeedsResponse(feeds))
+}
+
+type FeedResponse struct {
+	ID        uuid.UUID `json:"id"`
+	AuthorID  uuid.UUID `json:"author_id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	Tags      []string  `json:"tags,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func toPostResponse(p *post.Post) FeedResponse {
+	return FeedResponse{
+		ID:        p.ID,
+		AuthorID:  p.AuthorID,
+		Title:     p.Title,
+		Content:   p.Content,
+		Tags:      p.Tags,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+	}
+}
+
+func toFeedsResponse(p []post.Post) []FeedResponse {
+	r := make([]FeedResponse, 0, len(p))
+	for _, post := range p {
+		r = append(r, toPostResponse(&post))
+	}
+	return r
 }

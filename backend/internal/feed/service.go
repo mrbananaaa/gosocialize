@@ -5,17 +5,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
 	"github.com/mrbananaaa/gosocialize/internal/post"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 type Service struct {
-	q *sqlc.Queries
+	store *store.Store
 }
 
-func NewService(q *sqlc.Queries) *Service {
+func NewService(
+	s *store.Store,
+) *Service {
 	return &Service{
-		q: q,
+		store: s,
 	}
 }
 
@@ -23,12 +25,12 @@ func (s *Service) GetFeeds(
 	ctx context.Context,
 	userID uuid.UUID,
 ) ([]post.Post, error) {
-	feeds, err := s.q.ListPostForFeeds(ctx, userID)
+	feeds, err := s.store.Q.ListPostForFeeds(ctx, userID)
 	if err != nil {
 		return nil, postgres.PgErrMapper(err)
 	}
 
-	var f []post.Post
+	f := make([]post.Post, 0, len(feeds))
 	for _, p := range feeds {
 		f = append(f, post.Post{
 			ID:        p.ID,

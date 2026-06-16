@@ -9,7 +9,7 @@ import (
 )
 
 type DB struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
 func NewDB(connStr string) (*DB, error) {
@@ -38,11 +38,11 @@ func NewDB(connStr string) (*DB, error) {
 	}()
 
 	return &DB{
-		pool: pool,
+		Pool: pool,
 	}, nil
 }
 
 func (db *DB) Close() {
-	db.pool.Close()
+	db.Pool.Close()
 	logger.Warn("database pool closed 🔌")
 }

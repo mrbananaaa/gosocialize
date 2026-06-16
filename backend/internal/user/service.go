@@ -1,15 +1,17 @@
 package user
 
 import (
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 type Service struct {
-	q *sqlc.Queries
+	store *store.Store
 }
 
-func NewService(q *sqlc.Queries) *Service {
+func NewService(
+	s *store.Store,
+) *Service {
 	return &Service{
-		q: q,
+		store: s,
 	}
 }

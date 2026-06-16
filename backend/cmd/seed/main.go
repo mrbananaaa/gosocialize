@@ -16,7 +16,7 @@ func main() {
 	}
 	defer logger.Sync()
 
-	db, err := postgres.New("postgres://postgres:postgres@localhost:5432/gosocialize?sslmode=disable")
+	db, err := postgres.NewDB("postgres://postgres:postgres@localhost:5432/gosocialize?sslmode=disable")
 	if err != nil {
 		logger.Error("Failed to open db pool", logger.ErrorField(err))
 		return

@@ -9,12 +9,13 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/seeds"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
+	"github.com/mrbananaaa/gosocialize/store"
 	"github.com/pressly/goose/v3"
 )
 
 func Seed(
 	ctx context.Context,
-	db *postgres.Database,
+	db *postgres.DB,
 ) error {
 	logger.Info("Initialize seeding")
 
@@ -22,14 +23,16 @@ func Seed(
 		return err
 	}
 
+	store := store.New(db.Pool)
+
 	logger.Info("Seeding users...")
-	users, err := seeds.SeedUsers(ctx, db.Q, 20, "seedingpassword")
+	users, err := seeds.SeedUsers(ctx, store, 20, "seedingpassword")
 	if err != nil {
 		return fmt.Errorf("Failed to seed users: %v", err)
 	}
 
 	logger.Info("Seeding posts...")
-	_, err = seeds.SeedPosts(ctx, db.Q, 100, users)
+	_, err = seeds.SeedPosts(ctx, store, 100, users)
 	if err != nil {
 		return fmt.Errorf("Failed to seed users: %v", err)
 	}
@@ -40,7 +43,7 @@ func Seed(
 
 func ResetDB(
 	ctx context.Context,
-	db *postgres.Database,
+	db *postgres.DB,
 ) error {
 	// collecting connection from pool
 	dbconn := stdlib.OpenDBFromPool(db.Pool)

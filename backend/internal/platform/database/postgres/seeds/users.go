@@ -8,16 +8,17 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/auth"
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/internal/platform/db"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 func SeedUsers(
 	ctx context.Context,
-	q *sqlc.Queries,
+	s *store.Store,
 	count int,
 	password string,
-) ([]sqlc.User, error) {
-	var users []sqlc.User
+) ([]db.User, error) {
+	users := make([]db.User, 0, count)
 
 	hasher := auth.NewArgon2Hasher()
 	encodedHash, err := hasher.Hash(password)
@@ -28,7 +29,7 @@ func SeedUsers(
 	for range count {
 		now := time.Now()
 
-		u := sqlc.CreateUserParams{
+		u := db.CreateUserParams{
 			ID:        uuid.New(),
 			Email:     gofakeit.Email(),
 			Username:  truncateString(gofakeit.Username(), 21),
@@ -38,12 +39,12 @@ func SeedUsers(
 			UpdatedAt: now,
 		}
 
-		err := q.CreateUser(ctx, u)
+		err := s.Q.CreateUser(ctx, u)
 		if err != nil {
 			return nil, err
 		}
 
-		users = append(users, sqlc.User(u))
+		users = append(users, db.User(u))
 	}
 
 	return users, nil
