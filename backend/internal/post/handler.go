@@ -45,15 +45,10 @@ func (h *Handler) ListPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.OK(w, p.Posts, httpx.WithPaginationMeta(pagination.PaginationMeta{
+	httpx.OK(w, toPostListResponse(p.Posts), httpx.WithMeta(pagination.PaginationMeta{
 		NextCursor: p.NextCursor,
 		HasMore:    p.HasMore,
 	}))
-}
-
-type CreatePostRequest struct {
-	Title   string `json:"title" validate:"required,min=3,max=255"`
-	Content string `json:"content" validate:"required"`
 }
 
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +84,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.Created(w, post)
+	httpx.Created(w, toPostResponse(post))
 }
 
 func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
@@ -108,12 +103,7 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.OK(w, post)
-}
-
-type UpdatePostRequest struct {
-	Title   string `json:"title" validate:"max=255"`
-	Content string `json:"content"`
+	httpx.OK(w, toPostResponse(post))
 }
 
 func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
