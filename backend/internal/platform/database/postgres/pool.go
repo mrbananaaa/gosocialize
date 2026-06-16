@@ -12,7 +12,7 @@ type DB struct {
 	pool *pgxpool.Pool
 }
 
-func NewPool(connStr string) (*DB, error) {
+func NewDB(connStr string) (*DB, error) {
 	pool, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
 		return nil, err
