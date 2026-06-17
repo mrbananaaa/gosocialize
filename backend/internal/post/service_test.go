@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v7"
+	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/post"
 	"github.com/mrbananaaa/gosocialize/internal/testutil"
 	"github.com/mrbananaaa/gosocialize/store"
@@ -45,6 +46,18 @@ func TestCreatePost(t *testing.T) {
 			Title:    "",
 			Content:  gofakeit.LoremIpsumParagraph(10, 20, 15, " "),
 			Tags:     nil,
+		}
+
+		_, err := svc.Create(t.Context(), input)
+
+		require.Error(t, err)
+	})
+
+	t.Run("fail - user does not exists", func(t *testing.T) {
+		input := post.CreateInput{
+			AuthorID: uuid.New(),
+			Title:    "Hello",
+			Content:  "Gawd dayumn",
 		}
 
 		_, err := svc.Create(t.Context(), input)
