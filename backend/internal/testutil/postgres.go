@@ -81,8 +81,6 @@ func ResetDB(t *testing.T) error {
 		return fmt.Errorf("failed to migrate database: %v", err)
 	}
 
-	t.Log("Database reseted!")
-
 	return nil
 }
 
