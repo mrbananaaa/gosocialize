@@ -3,6 +3,7 @@ package testutil
 import (
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
@@ -18,7 +19,7 @@ func (e *Env) CreateUser(t *testing.T, opts ...UserOption) db.User {
 	param := db.CreateUserParams{
 		ID:        uuid.New(),
 		Email:     gofakeit.Email(),
-		Username:  gofakeit.Username(),
+		Username:  truncateString(gofakeit.Username(), 21),
 		Password:  gofakeit.Password(true, true, true, true, false, 8),
 		Name:      gofakeit.Name(),
 		CreatedAt: time.Now(),
@@ -51,4 +52,12 @@ func WithPassword(password string) UserOption {
 	return func(p *db.CreateUserParams) {
 		p.Password = password
 	}
+}
+func truncateString(s string, max int) string {
+	if utf8.RuneCountInString(s) <= max {
+		return s
+	}
+
+	runes := []rune(s)
+	return string(runes[:max])
 }
