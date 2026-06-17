@@ -15,12 +15,9 @@ import (
 )
 
 func TestCreatePost(t *testing.T) {
-	env := testutil.NewEnv(t)
-	store := store.New(env.DB)
-
-	svc := post.NewService(store)
-
 	t.Run("success - user can create post", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		user := env.CreateUser(t)
 
 		input := post.CreateInput{
@@ -42,6 +39,8 @@ func TestCreatePost(t *testing.T) {
 	})
 
 	t.Run("fail - empty title not allowed", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		user := env.CreateUser(t)
 
 		input := post.CreateInput{
@@ -57,6 +56,8 @@ func TestCreatePost(t *testing.T) {
 	})
 
 	t.Run("fail - user does not exists", func(t *testing.T) {
+		_, svc := newPostService(t)
+
 		input := post.CreateInput{
 			AuthorID: uuid.New(),
 			Title:    "Hello",
@@ -70,12 +71,9 @@ func TestCreatePost(t *testing.T) {
 }
 
 func TestListPosts(t *testing.T) {
-	env := testutil.NewEnv(t)
-	store := store.New(env.DB)
-
-	svc := post.NewService(store)
-
 	t.Run("success - retrieve post list", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		user := env.CreateUser(t)
 		_ = env.CreatePost(t, user.ID)
 
@@ -90,6 +88,8 @@ func TestListPosts(t *testing.T) {
 	})
 
 	t.Run("success - valid cursor", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		for range 50 {
 			user := env.CreateUser(t)
 			_ = env.CreatePost(t, user.ID)
@@ -115,6 +115,8 @@ func TestListPosts(t *testing.T) {
 	})
 
 	t.Run("fail - invalid cursor", func(t *testing.T) {
+		_, svc := newPostService(t)
+
 		p, err := svc.ListPosts(t.Context(), pagination.CursorQueryParam{
 			Cursor: "xxaeuui213213xx",
 			Limit:  10,
@@ -126,12 +128,9 @@ func TestListPosts(t *testing.T) {
 }
 
 func TestGetByID(t *testing.T) {
-	env := testutil.NewEnv(t)
-	store := store.New(env.DB)
-
-	svc := post.NewService(store)
-
 	t.Run("fail - no post with given id", func(t *testing.T) {
+		_, svc := newPostService(t)
+
 		p, err := svc.GetByID(t.Context(), uuid.New())
 
 		require.Error(t, err)
@@ -139,6 +138,8 @@ func TestGetByID(t *testing.T) {
 	})
 
 	t.Run("success - id matched", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		user := env.CreateUser(t)
 		post := env.CreatePost(t, user.ID)
 
@@ -150,12 +151,9 @@ func TestGetByID(t *testing.T) {
 }
 
 func TestDeletePost(t *testing.T) {
-	env := testutil.NewEnv(t)
-	store := store.New(env.DB)
-
-	svc := post.NewService(store)
-
 	t.Run("success - post deleted", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		user := env.CreateUser(t)
 		p := env.CreatePost(t, user.ID)
 
@@ -170,6 +168,8 @@ func TestDeletePost(t *testing.T) {
 	})
 
 	t.Run("fail - no post with given id", func(t *testing.T) {
+		_, svc := newPostService(t)
+
 		err := svc.DeletePost(context.Background(), post.DeletePostInput{
 			ID:       uuid.New(),
 			AuthorID: uuid.New(),
@@ -178,6 +178,8 @@ func TestDeletePost(t *testing.T) {
 	})
 
 	t.Run("fail - cannot delete other user post", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		user := env.CreateUser(t)
 		p := env.CreatePost(t, user.ID)
 
@@ -191,12 +193,9 @@ func TestDeletePost(t *testing.T) {
 }
 
 func TestUpdatePost(t *testing.T) {
-	env := testutil.NewEnv(t)
-	store := store.New(env.DB)
-
-	svc := post.NewService(store)
-
 	t.Run("success - post updated", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		u := env.CreateUser(t)
 		p := env.CreatePost(t, u.ID)
 
@@ -218,6 +217,8 @@ func TestUpdatePost(t *testing.T) {
 	})
 
 	t.Run("success - updated only title field", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		u := env.CreateUser(t)
 		p := env.CreatePost(t, u.ID)
 
@@ -238,6 +239,8 @@ func TestUpdatePost(t *testing.T) {
 	})
 
 	t.Run("fail - no post with given id", func(t *testing.T) {
+		_, svc := newPostService(t)
+
 		input := post.UpdatePostInput{
 			ID:      uuid.New(),
 			UserID:  uuid.New(),
@@ -250,6 +253,8 @@ func TestUpdatePost(t *testing.T) {
 	})
 
 	t.Run("fail - cannot update other user post", func(t *testing.T) {
+		env, svc := newPostService(t)
+
 		u := env.CreateUser(t)
 		p := env.CreatePost(t, u.ID)
 
@@ -264,4 +269,14 @@ func TestUpdatePost(t *testing.T) {
 		require.Error(t, err)
 		require.ErrorIs(t, err, apperr.ErrForbidden)
 	})
+}
+
+func newPostService(t *testing.T) (*testutil.Env, *post.Service) {
+	t.Helper()
+
+	env := testutil.NewEnv(t)
+	store := store.New(env.DB)
+	svc := post.NewService(store)
+
+	return env, svc
 }
