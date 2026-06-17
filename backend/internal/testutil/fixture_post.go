@@ -10,7 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func (e *Env) CreatePost(t *testing.T, userID uuid.UUID) db.Post {
+func (e *Env) CreatePost(
+	t *testing.T,
+	userID uuid.UUID,
+) db.Post {
 	t.Helper()
 
 	param := db.CreatePostParams{
