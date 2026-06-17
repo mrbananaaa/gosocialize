@@ -2,6 +2,7 @@ package post
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,6 +35,10 @@ func (s *Service) Create(
 	ctx context.Context,
 	input CreateInput,
 ) (*Post, error) {
+	if strings.TrimSpace(input.Title) == "" {
+		return nil, apperr.New(apperr.Code.BadRequest, "title must be given")
+	}
+
 	id := uuid.New()
 	now := time.Now()
 
