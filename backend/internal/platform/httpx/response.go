@@ -12,11 +12,6 @@ type Response struct {
 	Meta    any    `json:"meta,omitzero"`
 }
 
-type PaginationMeta struct {
-	NextCursor string `json:"next_cursor"` // base64encoded
-	HasMore    bool   `json:"has_more"`
-}
-
 func writeJSON(
 	w http.ResponseWriter,
 	status int,
