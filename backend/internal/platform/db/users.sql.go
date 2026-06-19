@@ -43,7 +43,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
-const getUserByID = `-- name: GetUserByID :one
+const findUserByID = `-- name: FindUserByID :one
 SELECT 
   id, email, username, password, name, created_at, updated_at
 FROM
@@ -52,8 +52,8 @@ WHERE
   id = $1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByID, id)
+func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, findUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
