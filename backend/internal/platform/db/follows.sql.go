@@ -11,51 +11,82 @@ import (
 	"github.com/google/uuid"
 )
 
-const followUser = `-- name: FollowUser :exec
-INSERT INTO follows (
-  followee_id, follower_id
-) VALUES (
-  $1, $2
-)
-`
-
-type FollowUserParams struct {
-	FolloweeID uuid.UUID
-	FollowerID uuid.UUID
-}
-
-func (q *Queries) FollowUser(ctx context.Context, arg FollowUserParams) error {
-	_, err := q.db.Exec(ctx, followUser, arg.FolloweeID, arg.FollowerID)
-	return err
-}
-
-const followersCount = `-- name: FollowersCount :one
-SELECT
-  COUNT(*)
+const countFollowers = `-- name: CountFollowers :one
+SELECT COUNT(*)
 FROM follows
 WHERE followee_id = $1
 `
 
-func (q *Queries) FollowersCount(ctx context.Context, followeeID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, followersCount, followeeID)
+func (q *Queries) CountFollowers(ctx context.Context, followeeID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countFollowers, followeeID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
 }
 
+const countFollowing = `-- name: CountFollowing :one
+SELECT COUNT(*)
+FROM follows
+WHERE follower_id = $1
+`
+
+func (q *Queries) CountFollowing(ctx context.Context, followerID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countFollowing, followerID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const followUser = `-- name: FollowUser :exec
+INSERT INTO follows (follower_id, followee_id)
+VALUES ($1, $2)
+ON CONFLICT DO NOTHING
+`
+
+type FollowUserParams struct {
+	FollowerID uuid.UUID
+	FolloweeID uuid.UUID
+}
+
+func (q *Queries) FollowUser(ctx context.Context, arg FollowUserParams) error {
+	_, err := q.db.Exec(ctx, followUser, arg.FollowerID, arg.FolloweeID)
+	return err
+}
+
+const isFollowing = `-- name: IsFollowing :one
+SELECT EXISTS (
+  SELECT 1
+  FROM follows
+  WHERE follower_id = $1
+    AND followee_id = $2
+)
+`
+
+type IsFollowingParams struct {
+	FollowerID uuid.UUID
+	FolloweeID uuid.UUID
+}
+
+func (q *Queries) IsFollowing(ctx context.Context, arg IsFollowingParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isFollowing, arg.FollowerID, arg.FolloweeID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const unfollowUser = `-- name: UnfollowUser :exec
 DELETE
 FROM follows
-WHERE
-  followee_id = $1 AND follower_id = $2
+WHERE follower_id = $1 
+  AND followee_id = $2
 `
 
 type UnfollowUserParams struct {
-	FolloweeID uuid.UUID
 	FollowerID uuid.UUID
+	FolloweeID uuid.UUID
 }
 
 func (q *Queries) UnfollowUser(ctx context.Context, arg UnfollowUserParams) error {
-	_, err := q.db.Exec(ctx, unfollowUser, arg.FolloweeID, arg.FollowerID)
+	_, err := q.db.Exec(ctx, unfollowUser, arg.FollowerID, arg.FolloweeID)
 	return err
 }
