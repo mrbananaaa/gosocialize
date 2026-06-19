@@ -9,6 +9,7 @@ import (
 
 	"github.com/mrbananaaa/gosocialize/internal/auth"
 	"github.com/mrbananaaa/gosocialize/internal/feed"
+	"github.com/mrbananaaa/gosocialize/internal/follow"
 	"github.com/mrbananaaa/gosocialize/internal/health"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/config"
@@ -41,12 +42,13 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	userService := user.NewService(store)
 	postService := post.NewService(store)
 	feedService := feed.NewService(store)
+	followService := follow.NewService(store)
 
 	authMiddleware := middlewares.NewAuth(tokenService)
 	loggerMiddleware := middlewares.NewLogger()
 
 	authHandler := auth.NewHandler(authService)
-	userHandler := user.NewHandler(userService)
+	userHandler := user.NewHandler(userService, followService)
 	postHandler := post.NewHandler(postService)
 	feedHandler := feed.NewHandler(feedService)
 	healthHandler := health.NewHandler()
