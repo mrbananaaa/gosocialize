@@ -47,7 +47,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 
 	r.Route("/v1", func(u chi.Router) {
 		u.Mount("/auth", h.authHandler.Routes())
-		u.Mount("/user", h.userHandler.Routes())
+		u.Mount("/user", h.userHandler.Routes(m.authMiddleware))
 		u.Mount("/post", h.postHandler.Routes(m.authMiddleware))
 		u.Mount("/feed", h.feedHandler.Routes(m.authMiddleware))
 		u.Mount("/health", h.healthHandler.Routes())
