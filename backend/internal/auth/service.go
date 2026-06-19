@@ -9,18 +9,19 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
 	"github.com/mrbananaaa/gosocialize/internal/platform/db"
+	"github.com/mrbananaaa/gosocialize/internal/token"
 	"github.com/mrbananaaa/gosocialize/internal/user"
 	"github.com/mrbananaaa/gosocialize/store"
 )
 
 type Service struct {
-	token  TokenService
+	token  token.TokenService
 	hasher PasswordHasher
 	store  *store.Store
 }
 
 func NewService(
-	token TokenService,
+	token token.TokenService,
 	hasher PasswordHasher,
 	s *store.Store,
 ) *Service {

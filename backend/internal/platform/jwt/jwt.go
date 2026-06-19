@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/mrbananaaa/gosocialize/internal/auth"
+	tokenSvc "github.com/mrbananaaa/gosocialize/internal/token"
 )
 
 type JWTService struct {
@@ -35,7 +35,7 @@ func (s *JWTService) GenerateAccess(userID string, role string) (string, error) 
 	return token.SignedString(s.secret)
 }
 
-func (s *JWTService) Verify(tokenStr string) (*auth.Claims, error) {
+func (s *JWTService) Verify(tokenStr string) (*tokenSvc.Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &jwtClaims{}, func(t *jwt.Token) (any, error) {
 		return s.secret, nil
 	})
@@ -54,7 +54,7 @@ func (s *JWTService) Verify(tokenStr string) (*auth.Claims, error) {
 		return nil, err
 	}
 
-	return &auth.Claims{
+	return &tokenSvc.Claims{
 		UserID: userID,
 		Role:   claims.Role,
 	}, nil

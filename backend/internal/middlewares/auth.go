@@ -4,18 +4,18 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mrbananaaa/gosocialize/internal/auth"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
 	"github.com/mrbananaaa/gosocialize/internal/platform/requestctx"
+	"github.com/mrbananaaa/gosocialize/internal/token"
 )
 
 type AuthMiddleware struct {
-	token auth.TokenService
+	token token.TokenService
 }
 
 func NewAuth(
-	token auth.TokenService,
+	token token.TokenService,
 ) *AuthMiddleware {
 	return &AuthMiddleware{
 		token: token,
