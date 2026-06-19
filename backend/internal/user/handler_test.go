@@ -1,15 +1,12 @@
 package user_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/mrbananaaa/gosocialize/internal/follow"
 	"github.com/mrbananaaa/gosocialize/internal/testutil"
 	"github.com/mrbananaaa/gosocialize/internal/user"
@@ -27,15 +24,15 @@ func TestFollowUserHandler(t *testing.T) {
 		followee := env.CreateUser(t)
 		follower := env.CreateUser(t)
 
-		body, err := json.Marshal(user.FollowUserRequest{
-			TargetUserID: followee.ID,
-		})
-		require.NoError(t, err)
-
 		req := httptest.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("/user/%s/follow", follower.ID.String()),
-			bytes.NewReader(body),
+			fmt.Sprintf("/user/%s/follow", followee.ID.String()),
+			nil,
+		)
+
+		req = testutil.AuthenticatedRequest(
+			req,
+			follower.ID,
 		)
 
 		rr := httptest.NewRecorder()
@@ -43,27 +40,6 @@ func TestFollowUserHandler(t *testing.T) {
 		router.ServeHTTP(rr, req)
 
 		require.Equal(t, http.StatusCreated, rr.Code)
-	})
-
-	t.Run("fail - validation error", func(t *testing.T) {
-		follower := env.CreateUser(t)
-
-		body, err := json.Marshal(user.FollowUserRequest{
-			TargetUserID: uuid.Nil,
-		})
-		require.NoError(t, err)
-
-		req := httptest.NewRequest(
-			http.MethodGet,
-			fmt.Sprintf("/user/%s/follow", follower.ID.String()),
-			bytes.NewReader(body),
-		)
-
-		rr := httptest.NewRecorder()
-
-		router.ServeHTTP(rr, req)
-
-		require.Equal(t, http.StatusBadRequest, rr.Code)
 	})
 }
 
@@ -76,23 +52,24 @@ func TestUnfollowUserHandler(t *testing.T) {
 	t.Run("success - user unfollowed", func(t *testing.T) {
 		followee := env.CreateUser(t)
 		follower := env.CreateUser(t)
-
-		body, err := json.Marshal(user.UnFollowUserRequest{
-			TargetUserID: followee.ID,
-		})
-		require.NoError(t, err)
+		env.CreateFollow(t, follower.ID, followee.ID)
 
 		req := httptest.NewRequest(
-			http.MethodGet,
-			fmt.Sprintf("/user/%s/follow", follower.ID.String()),
-			bytes.NewReader(body),
+			http.MethodDelete,
+			fmt.Sprintf("/user/%s/unfollow", followee.ID.String()),
+			nil,
+		)
+
+		req = testutil.AuthenticatedRequest(
+			req,
+			follower.ID,
 		)
 
 		rr := httptest.NewRecorder()
 
 		router.ServeHTTP(rr, req)
 
-		require.Equal(t, http.StatusCreated, rr.Code)
+		require.Equal(t, http.StatusOK, rr.Code)
 	})
 
 }
