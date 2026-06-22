@@ -75,50 +75,6 @@ func (q *Queries) FindPostByID(ctx context.Context, postID uuid.UUID) (Post, err
 	return i, err
 }
 
-const listPostForFeeds = `-- name: ListPostForFeeds :many
-SELECT
-  id, author_id, title, content, created_at, updated_at
-FROM posts
-WHERE author_id IN (
-  SELECT followee_id
-  FROM follows
-  WHERE follower_id = $1
-
-  UNION
-
-  SELECT $1
-)
-ORDER BY created_at DESC
-LIMIT 20
-`
-
-func (q *Queries) ListPostForFeeds(ctx context.Context, followerID uuid.UUID) ([]Post, error) {
-	rows, err := q.db.Query(ctx, listPostForFeeds, followerID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Post
-	for rows.Next() {
-		var i Post
-		if err := rows.Scan(
-			&i.ID,
-			&i.AuthorID,
-			&i.Title,
-			&i.Content,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listPostsAfter = `-- name: ListPostsAfter :many
 SELECT
   id, author_id, title, content, created_at, updated_at

@@ -43,19 +43,3 @@ WHERE id = $1;
 DELETE 
 FROM posts
 WHERE id = $1;
-
--- name: ListPostForFeeds :many
-SELECT
-  id, author_id, title, content, created_at, updated_at
-FROM posts
-WHERE author_id IN (
-  SELECT followee_id
-  FROM follows
-  WHERE follower_id = $1
-
-  UNION
-
-  SELECT $1
-)
-ORDER BY created_at DESC
-LIMIT 20;
