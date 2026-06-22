@@ -47,8 +47,7 @@ func (s *Service) Register(
 	creationTime := time.Now()
 	passwordHash, err := s.hasher.Hash(input.Password)
 	if err != nil {
-		// TODO: Wrap with internal error
-		return nil, err
+		return nil, apperr.Wrap(err, apperr.Code.Internal, "failed to hash password")
 	}
 
 	u := db.CreateUserParams{
