@@ -50,14 +50,12 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	authHandler := auth.NewHandler(authService)
 	userHandler := user.NewHandler(userService, followService)
 	postHandler := post.NewHandler(postService)
-	feedHandler := feed.NewHandler(feedService)
 	healthHandler := health.NewHandler()
 
 	handlers := Handlers{
 		authHandler:   authHandler,
 		userHandler:   userHandler,
 		postHandler:   postHandler,
-		feedHandler:   feedHandler,
 		healthHandler: healthHandler,
 	}
 
