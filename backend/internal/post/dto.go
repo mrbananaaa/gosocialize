@@ -26,7 +26,7 @@ type PostResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func toPostResponse(p *Post) PostResponse {
+func ToPostResponse(p *Post) PostResponse {
 	return PostResponse{
 		ID:        p.ID,
 		AuthorID:  p.AuthorID,
@@ -38,10 +38,10 @@ func toPostResponse(p *Post) PostResponse {
 	}
 }
 
-func toPostListResponse(p []Post) []PostResponse {
+func ToPostListResponse(p []Post) []PostResponse {
 	r := make([]PostResponse, 0, len(p))
 	for _, post := range p {
-		r = append(r, toPostResponse(&post))
+		r = append(r, ToPostResponse(&post))
 	}
 	return r
 }
