@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/mrbananaaa/gosocialize/internal/auth"
+	"github.com/mrbananaaa/gosocialize/internal/token"
 )
 
 type User struct {
@@ -12,7 +12,7 @@ type User struct {
 	Role string
 }
 
-func UserFromClaims(c *auth.Claims) User {
+func UserFromClaims(c *token.Claims) User {
 	return User{
 		ID:   c.UserID,
 		Role: c.Role,

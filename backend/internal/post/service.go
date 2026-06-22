@@ -2,23 +2,25 @@ package post
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/mrbananaaa/gosocialize/internal/platform/apperr"
 	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres"
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/internal/platform/db"
 	"github.com/mrbananaaa/gosocialize/pkg/pagination"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 type Service struct {
-	q *sqlc.Queries
+	store *store.Store
 }
 
-func NewService(q *sqlc.Queries) *Service {
+func NewService(s *store.Store) *Service {
 	return &Service{
-		q: q,
+		store: s,
 	}
 }
 
@@ -33,6 +35,10 @@ func (s *Service) Create(
 	ctx context.Context,
 	input CreateInput,
 ) (*Post, error) {
+	if strings.TrimSpace(input.Title) == "" {
+		return nil, apperr.New(apperr.Code.BadRequest, "title must be given")
+	}
+
 	id := uuid.New()
 	now := time.Now()
 
@@ -46,15 +52,7 @@ func (s *Service) Create(
 		UpdatedAt: now,
 	}
 
-	err := s.q.CreatePost(ctx, sqlc.CreatePostParams{
-		ID:        p.ID,
-		AuthorID:  p.AuthorID,
-		Title:     p.Title,
-		Content:   p.Content,
-		CreatedAt: p.CreatedAt,
-		UpdatedAt: p.UpdatedAt,
-	})
-	if err != nil {
+	if err := s.store.Q.CreatePost(ctx, p.ToCreateParam()); err != nil {
 		return nil, postgres.PgErrMapper(err)
 	}
 
@@ -65,22 +63,22 @@ func (s *Service) GetByID(
 	ctx context.Context,
 	postID uuid.UUID,
 ) (*Post, error) {
-	post, err := s.q.FindPostByID(ctx, postID)
+	p, err := s.store.Q.FindPostByID(ctx, postID)
 	if err != nil {
 		return nil, postgres.PgErrMapper(err)
 	}
 
 	return &Post{
-		ID:        post.ID,
-		AuthorID:  post.AuthorID,
-		Title:     post.Title,
-		Content:   post.Content,
-		CreatedAt: post.CreatedAt,
-		UpdatedAt: post.UpdatedAt,
+		ID:        p.ID,
+		AuthorID:  p.AuthorID,
+		Title:     p.Title,
+		Content:   p.Content,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
 	}, nil
 }
 
-type ListPostsPayload struct {
+type ListPostsResponse struct {
 	Posts      []Post
 	NextCursor string
 	HasMore    bool
@@ -89,23 +87,22 @@ type ListPostsPayload struct {
 func (s *Service) ListPosts(
 	ctx context.Context,
 	cursorQuery pagination.CursorQueryParam,
-) (*ListPostsPayload, error) {
+) (*ListPostsResponse, error) {
 	cursor, err := pagination.DecodeCursor(cursorQuery.Cursor)
 	if err != nil {
-		// TODO: wrap with apperr
-		return nil, err
+		return nil, apperr.Wrap(err, apperr.Code.Internal, "invalid cursor")
 	}
 
 	paginationLimit := cursorQuery.Limit + 1
 
-	var rows []sqlc.Post
+	var rows []db.Post
 	if cursor == nil {
-		rows, err = s.q.ListPostsFirst(ctx, paginationLimit)
+		rows, err = s.store.Q.ListPostsFirst(ctx, paginationLimit)
 		if err != nil {
 			return nil, postgres.PgErrMapper(err)
 		}
 	} else {
-		rows, err = s.q.ListPostsAfter(ctx, sqlc.ListPostsAfterParams{
+		rows, err = s.store.Q.ListPostsAfter(ctx, db.ListPostsAfterParams{
 			CursorCreatedAt: pgtype.Timestamptz{
 				Time:  cursor.CreatedAt,
 				Valid: true,
@@ -118,7 +115,7 @@ func (s *Service) ListPosts(
 		}
 	}
 
-	var p []Post
+	p := make([]Post, 0, len(rows))
 	for _, post := range rows {
 		p = append(p, Post{
 			ID:        post.ID,
@@ -146,12 +143,11 @@ func (s *Service) ListPosts(
 
 		nextCursor, err = pagination.EncodeCursor(c)
 		if err != nil {
-			// TODO: wrap with apperr
-			return nil, err
+			return nil, apperr.Wrap(err, apperr.Code.BadRequest, "failed to encode next cursor")
 		}
 	}
 
-	return &ListPostsPayload{
+	return &ListPostsResponse{
 		Posts:      p,
 		NextCursor: nextCursor,
 		HasMore:    hasMore,
@@ -169,7 +165,7 @@ func (s *Service) UpdatePost(
 	ctx context.Context,
 	input UpdatePostInput,
 ) error {
-	post, err := s.q.FindPostByID(ctx, input.ID)
+	post, err := s.store.Q.FindPostByID(ctx, input.ID)
 	if err != nil {
 		err = postgres.PgErrMapper(err)
 		return err
@@ -192,7 +188,7 @@ func (s *Service) UpdatePost(
 		content = input.Content
 	}
 
-	err = s.q.UpdatePost(ctx, sqlc.UpdatePostParams{
+	err = s.store.Q.UpdatePost(ctx, db.UpdatePostParams{
 		ID:      post.ID,
 		Title:   title,
 		Content: content,
@@ -213,7 +209,7 @@ func (s *Service) DeletePost(
 	ctx context.Context,
 	input DeletePostInput,
 ) error {
-	post, err := s.q.FindPostByID(ctx, input.ID)
+	post, err := s.store.Q.FindPostByID(ctx, input.ID)
 	if err != nil {
 		return postgres.PgErrMapper(err)
 	}
@@ -222,7 +218,7 @@ func (s *Service) DeletePost(
 		return apperr.ErrForbidden
 	}
 
-	if err := s.q.DeletePost(ctx, post.ID); err != nil {
+	if err := s.store.Q.DeletePost(ctx, post.ID); err != nil {
 		return postgres.PgErrMapper(err)
 	}
 

@@ -4,14 +4,26 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mrbananaaa/gosocialize/internal/platform/db"
 )
 
 type Post struct {
-	ID        uuid.UUID `json:"id"`
-	AuthorID  uuid.UUID `json:"author_id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Tags      []string  `json:"tags,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID
+	AuthorID  uuid.UUID
+	Title     string
+	Content   string
+	Tags      []string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (p *Post) ToCreateParam() db.CreatePostParams {
+	return db.CreatePostParams{
+		ID:        p.ID,
+		AuthorID:  p.AuthorID,
+		Title:     p.Title,
+		Content:   p.Title,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+	}
 }

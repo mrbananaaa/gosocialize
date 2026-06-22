@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/mrbananaaa/gosocialize/internal/auth"
-	"github.com/mrbananaaa/gosocialize/internal/feed"
 	"github.com/mrbananaaa/gosocialize/internal/health"
 	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
@@ -19,7 +18,6 @@ type Handlers struct {
 	authHandler   *auth.Handler
 	userHandler   *user.Handler
 	postHandler   *post.Handler
-	feedHandler   *feed.Handler
 	healthHandler *health.Handler
 }
 
@@ -47,9 +45,8 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 
 	r.Route("/v1", func(u chi.Router) {
 		u.Mount("/auth", h.authHandler.Routes())
-		u.Mount("/user", h.userHandler.Routes())
+		u.Mount("/user", h.userHandler.Routes(m.authMiddleware))
 		u.Mount("/post", h.postHandler.Routes(m.authMiddleware))
-		u.Mount("/feed", h.feedHandler.Routes(m.authMiddleware))
 		u.Mount("/health", h.healthHandler.Routes())
 
 		// auth test

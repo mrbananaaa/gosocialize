@@ -22,8 +22,12 @@ func resolveStatus(code string) int {
 	switch code {
 	case apperr.Code.ValidationFailed:
 		return http.StatusBadRequest
+	case apperr.Code.BadRequest:
+		return http.StatusBadRequest
 
 	case apperr.Code.UserNotFound:
+		return http.StatusNotFound
+	case apperr.Code.NotFound:
 		return http.StatusNotFound
 
 	case apperr.Code.Conflict:

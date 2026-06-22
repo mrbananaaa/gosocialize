@@ -8,7 +8,7 @@ INSERT INTO users (
   $1, $2, $3, $4, $5, $6, $7
 );
 
--- name: GetUserByID :one
+-- name: FindUserByID :one
 SELECT 
   id, email, username, password, name, created_at, updated_at
 FROM

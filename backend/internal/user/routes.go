@@ -2,13 +2,21 @@ package user
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/mrbananaaa/gosocialize/internal/middlewares"
 )
 
-// TODO: mount this route using r.Mount(pattern, Routes())
-func (h *Handler) Routes() chi.Router {
+func (h *Handler) Routes(authMiddleware *middlewares.AuthMiddleware) chi.Router {
 	r := chi.NewRouter()
 
-	// r.Post("/signup", h.RegisterUser)
+	r.Group(func(u chi.Router) {
+		u.Use(authMiddleware.WithAccessToken)
+
+		u.Get("/feed", h.UserFeeds)
+
+		// follow
+		u.Post("/{userID}/follow", h.FollowUser)
+		u.Delete("/{userID}/follow", h.UnfollowUser)
+	})
 
 	return r
 }

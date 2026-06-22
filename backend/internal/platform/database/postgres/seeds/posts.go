@@ -8,16 +8,17 @@ import (
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
-	"github.com/mrbananaaa/gosocialize/internal/platform/database/postgres/sqlc"
+	"github.com/mrbananaaa/gosocialize/internal/platform/db"
+	"github.com/mrbananaaa/gosocialize/store"
 )
 
 func SeedPosts(
 	ctx context.Context,
-	q *sqlc.Queries,
+	s *store.Store,
 	count int,
-	users []sqlc.User,
-) ([]sqlc.Post, error) {
-	var posts []sqlc.Post
+	users []db.User,
+) ([]db.Post, error) {
+	posts := make([]db.Post, 0, count)
 
 	if len(users) == 0 {
 		return nil, errors.New("Users ids are empty")
@@ -28,7 +29,7 @@ func SeedPosts(
 		randomUser := rand.IntN(len(users))
 		userID := users[randomUser].ID
 
-		p := sqlc.CreatePostParams{
+		p := db.CreatePostParams{
 			ID:        uuid.New(),
 			AuthorID:  userID,
 			Title:     gofakeit.LoremIpsumSentence(16),
@@ -37,12 +38,12 @@ func SeedPosts(
 			UpdatedAt: now,
 		}
 
-		err := q.CreatePost(ctx, p)
+		err := s.Q.CreatePost(ctx, p)
 		if err != nil {
 			return nil, err
 		}
 
-		posts = append(posts, sqlc.Post(p))
+		posts = append(posts, db.Post(p))
 	}
 
 	return posts, nil

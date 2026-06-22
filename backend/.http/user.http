@@ -1,0 +1,4 @@
+### User Feed
+# @name GetUserFeeds
+# @auth Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTU2YTEwZS04ZGZlLTQ0ZDUtYjgwMi1hYzk3OGQ3MmQ2YzEiLCJyb2xlIjoidXNlciIsImlzcyI6Imdvc29jaWFsaXplIiwiZXhwIjoxNzgxOTUyODU1LCJpYXQiOjE3ODE5NTE5NTV9.3eEQTftYRcHKLlm5NBZcGHi46LM0immEETcII8hICSs
+GET {{base.url}}/user/feed
