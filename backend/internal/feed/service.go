@@ -9,7 +9,11 @@ import (
 	"github.com/mrbananaaa/gosocialize/store"
 )
 
-type Service struct {
+type Service interface {
+	GetUserFeeds(ctx context.Context, userID uuid.UUID, cursorQuery pagination.CursorQueryParam) (*GetUserFeedsPayload, error)
+}
+
+type feedService struct {
 	store *store.Store
 }
 
