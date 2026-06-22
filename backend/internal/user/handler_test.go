@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/mrbananaaa/gosocialize/internal/feed"
 	"github.com/mrbananaaa/gosocialize/internal/follow"
 	"github.com/mrbananaaa/gosocialize/internal/testutil"
 	"github.com/mrbananaaa/gosocialize/internal/user"
@@ -71,7 +72,55 @@ func TestUnfollowUserHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, rr.Code)
 	})
+}
 
+func TestUserFeedsHandler(t *testing.T) {
+	env, handler := newUserHandler(t)
+
+	router := chi.NewRouter()
+	router.Get("/user/feed", handler.UserFeeds)
+
+	t.Run("success - get user feeds", func(t *testing.T) {
+		currentUser := env.CreateUser(t)
+		postsCount := 20
+
+		for range postsCount {
+			u := env.CreateUser(t)
+			_ = env.CreatePost(t, u.ID)
+			env.CreateFollow(t, currentUser.ID, u.ID)
+		}
+
+		req := httptest.NewRequest(
+			http.MethodGet,
+			"/user/feed",
+			nil,
+		)
+
+		req = testutil.AuthenticatedRequest(
+			req,
+			currentUser.ID,
+		)
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		require.Equal(t, http.StatusOK, rr.Code)
+	})
+
+	t.Run("fail - unauthorized", func(t *testing.T) {
+		req := httptest.NewRequest(
+			http.MethodGet,
+			"/user/feed",
+			nil,
+		)
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		require.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
 }
 
 func newUserHandler(t *testing.T) (*testutil.Env, *user.Handler) {
@@ -81,8 +130,9 @@ func newUserHandler(t *testing.T) (*testutil.Env, *user.Handler) {
 	store := store.New(env.DB)
 	userSvc := user.NewService(store)
 	followSvc := follow.NewService(store)
+	feedSvc := feed.NewService(store)
 
-	handler := user.NewHandler(userSvc, followSvc)
+	handler := user.NewHandler(userSvc, followSvc, feedSvc)
 
 	return env, handler
 }
