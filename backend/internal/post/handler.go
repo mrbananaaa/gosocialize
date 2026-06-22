@@ -45,7 +45,7 @@ func (h *Handler) ListPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.OK(w, toPostListResponse(p.Posts), httpx.WithMeta(pagination.PaginationMeta{
+	httpx.OK(w, ToPostListResponse(p.Posts), httpx.WithMeta(pagination.PaginationMeta{
 		NextCursor: p.NextCursor,
 		HasMore:    p.HasMore,
 	}))
@@ -84,7 +84,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.Created(w, toPostResponse(post))
+	httpx.Created(w, ToPostResponse(post))
 }
 
 func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +103,7 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.OK(w, toPostResponse(post))
+	httpx.OK(w, ToPostResponse(post))
 }
 
 func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
