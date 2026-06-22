@@ -48,7 +48,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	loggerMiddleware := middlewares.NewLogger()
 
 	authHandler := auth.NewHandler(authService)
-	userHandler := user.NewHandler(userService, followService)
+	userHandler := user.NewHandler(userService, followService, feedService)
 	postHandler := post.NewHandler(postService)
 	healthHandler := health.NewHandler()
 

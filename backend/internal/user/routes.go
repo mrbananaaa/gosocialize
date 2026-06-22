@@ -11,9 +11,11 @@ func (h *Handler) Routes(authMiddleware *middlewares.AuthMiddleware) chi.Router 
 	r.Group(func(u chi.Router) {
 		u.Use(authMiddleware.WithAccessToken)
 
+		u.Get("/feed", h.UserFeeds)
+
 		// follow
-		r.Post("/{userID}/follow", h.FollowUser)
-		r.Delete("/{userID}/follow", h.UnfollowUser)
+		u.Post("/{userID}/follow", h.FollowUser)
+		u.Delete("/{userID}/follow", h.UnfollowUser)
 	})
 
 	return r
