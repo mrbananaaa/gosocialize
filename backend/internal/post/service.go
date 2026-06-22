@@ -90,8 +90,7 @@ func (s *Service) ListPosts(
 ) (*ListPostsResponse, error) {
 	cursor, err := pagination.DecodeCursor(cursorQuery.Cursor)
 	if err != nil {
-		// TODO: wrap with apperr
-		return nil, err
+		return nil, apperr.Wrap(err, apperr.Code.Internal, "invalid cursor")
 	}
 
 	paginationLimit := cursorQuery.Limit + 1
@@ -144,8 +143,7 @@ func (s *Service) ListPosts(
 
 		nextCursor, err = pagination.EncodeCursor(c)
 		if err != nil {
-			// TODO: wrap with apperr
-			return nil, err
+			return nil, apperr.Wrap(err, apperr.Code.BadRequest, "failed to encode next cursor")
 		}
 	}
 
