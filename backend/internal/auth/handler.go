@@ -140,3 +140,9 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		AccessToken: token.AccessToken,
 	})
 }
+
+func (h *Handler) SignOut(w http.ResponseWriter, r *http.Request) {
+	httpx.CleanRefreshToken(w)
+
+	httpx.OK(w, nil)
+}
