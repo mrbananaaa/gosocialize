@@ -24,6 +24,7 @@ func CleanRefreshToken(w http.ResponseWriter) {
 		HttpOnly: true,
 		Secure:   true,
 		MaxAge:   -1,
+		Path:     "/v1/auth/refresh",
 	})
 }
 
