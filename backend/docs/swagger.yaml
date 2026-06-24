@@ -9,14 +9,14 @@ definitions:
   auth.SignInRequest:
     properties:
       password:
-        example: "@Itskindahardtodefine"
+        example: '@Itskindahardtodefine'
         type: string
       username:
         example: 21charmaxyoo
         type: string
     required:
-      - password
-      - username
+    - password
+    - username
     type: object
   auth.SignInResponse:
     properties:
@@ -33,16 +33,16 @@ definitions:
         example: John Doe Is Ya Name
         type: string
       password:
-        example: "@Itskindahardtodefine"
+        example: '@Itskindahardtodefine'
         type: string
       username:
         example: 21charmaxyoo
         type: string
     required:
-      - email
-      - name
-      - password
-      - username
+    - email
+    - name
+    - password
+    - username
     type: object
   auth.SignUpResponse:
     properties:
@@ -107,8 +107,8 @@ definitions:
         minLength: 3
         type: string
     required:
-      - content
-      - title
+    - content
+    - title
     type: object
   post.Post:
     properties:
@@ -153,364 +153,364 @@ info:
 paths:
   /auth/refresh:
     get:
-      description: Get a new access token using refresh token from cookie
+      description: get a new access token using refresh token from cookie
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    $ref: "#/definitions/auth.RefreshResponse"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.RefreshResponse'
+              type: object
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
-      summary: Refresh token route
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: refresh token
       tags:
-        - auth
+      - auth
   /auth/signin:
     post:
       consumes:
-        - application/json
-      description: get the goddam token
+      - application/json
+      description: login and get the access token
       parameters:
-        - description: signin request body
-          in: body
-          name: signup
-          required: true
-          schema:
-            $ref: "#/definitions/auth.SignInRequest"
+      - description: signin request body
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignInRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    $ref: "#/definitions/auth.SignInResponse"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.SignInResponse'
+              type: object
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
-      summary: Signin
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: user login
       tags:
-        - auth
+      - auth
   /auth/signout:
     post:
-      description: SignOut
+      description: logout
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/httpx.Response"
-      summary: SignOut
+            $ref: '#/definitions/httpx.Response'
+      summary: logout
       tags:
-        - auth
+      - auth
   /auth/signup:
     post:
       consumes:
-        - application/json
-      description: register new user route
+      - application/json
+      description: register new user
       parameters:
-        - description: signup request body
-          in: body
-          name: signup
-          required: true
-          schema:
-            $ref: "#/definitions/auth.SignUpRequest"
+      - description: signup request body
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignUpRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    $ref: "#/definitions/auth.SignUpResponse"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.SignUpResponse'
+              type: object
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
-      summary: Register new user
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: register new user
       tags:
-        - auth
+      - auth
   /post:
     get:
       description: get latest post
       parameters:
-        - description: post limit
-          in: query
-          name: limit
-          type: integer
-        - description: cursor string
-          in: query
-          name: cursor
-          type: string
+      - description: post limit
+        in: query
+        name: limit
+        type: integer
+      - description: cursor string
+        in: query
+        name: cursor
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    items:
-                      $ref: "#/definitions/post.Post"
-                    type: array
-                  meta:
-                    $ref: "#/definitions/pagination.PaginationMeta"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/post.Post'
+                  type: array
+                meta:
+                  $ref: '#/definitions/pagination.PaginationMeta'
+              type: object
       summary: get latest post
       tags:
-        - post
+      - post
     post:
       consumes:
-        - application/json
+      - application/json
       description: create post
       parameters:
-        - description: create post request body
-          in: body
-          name: post
-          required: true
-          schema:
-            $ref: "#/definitions/post.CreatePostRequest"
+      - description: create post request body
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/post.CreatePostRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    $ref: "#/definitions/post.Post"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/post.Post'
+              type: object
         "400":
-          description: "message: validation failed"
+          description: 'message: validation failed'
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.ErrorResponse"
-              - properties:
-                  details:
-                    items:
-                      $ref: "#/definitions/validator.FieldError"
-                    type: array
-                type: object
+            - $ref: '#/definitions/httpx.ErrorResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/validator.FieldError'
+                  type: array
+              type: object
         "401":
-          description: "code: auth.unauthorized"
+          description: 'code: auth.unauthorized'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: create post
       tags:
-        - post
+      - post
   /post/{post_id}:
     delete:
       description: update post
       parameters:
-        - description: Post ID
-          in: path
-          name: post_id
-          required: true
-          type: string
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
-          description: "message: post deleted!"
+          description: 'message: post deleted!'
           schema:
-            $ref: "#/definitions/httpx.Response"
+            $ref: '#/definitions/httpx.Response'
         "400":
-          description: "message: invalid uuid field -"
+          description: 'message: invalid uuid field -'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
         "401":
-          description: "code: auth.unauthorized"
+          description: 'code: auth.unauthorized'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: update post
       tags:
-        - post
+      - post
     get:
       description: get post by given id post
       parameters:
-        - description: Post ID
-          in: path
-          name: post_id
-          required: true
-          type: string
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    $ref: "#/definitions/post.Post"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/post.Post'
+              type: object
       summary: get post by given id post
       tags:
-        - post
+      - post
     patch:
       consumes:
-        - application/json
+      - application/json
       description: update post
       parameters:
-        - description: Post ID
-          in: path
-          name: post_id
-          required: true
-          type: string
-        - description: update post request body
-          in: body
-          name: post
-          required: true
-          schema:
-            $ref: "#/definitions/post.UpdatePostRequest"
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: update post request body
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/post.UpdatePostRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
-          description: "message: post updated!"
+          description: 'message: post updated!'
           schema:
-            $ref: "#/definitions/httpx.Response"
+            $ref: '#/definitions/httpx.Response'
         "400":
-          description: "message: validation failed"
+          description: 'message: validation failed'
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.ErrorResponse"
-              - properties:
-                  details:
-                    items:
-                      $ref: "#/definitions/validator.FieldError"
-                    type: array
-                type: object
+            - $ref: '#/definitions/httpx.ErrorResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/validator.FieldError'
+                  type: array
+              type: object
         "401":
-          description: "code: auth.unauthorized"
+          description: 'code: auth.unauthorized'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: update post
       tags:
-        - post
+      - post
   /user/{user_id}/follow:
     delete:
       description: unfollow the user with given id in the path
       parameters:
-        - description: User ID
-          in: path
-          name: user_id
-          required: true
-          type: string
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
-          description: "message: user unfollowed!"
+          description: 'message: user unfollowed!'
           schema:
-            $ref: "#/definitions/httpx.Response"
+            $ref: '#/definitions/httpx.Response'
         "400":
-          description: "message: invalid uuid field -"
+          description: 'message: invalid uuid field -'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
         "401":
-          description: "code: auth.unauthorized"
+          description: 'code: auth.unauthorized'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: unfollow other user
       tags:
-        - user
+      - user
     post:
       description: follow the user with given id in the path
       parameters:
-        - description: User ID
-          in: path
-          name: user_id
-          required: true
-          type: string
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
-          description: "message: user followed!"
+          description: 'message: user followed!'
           schema:
-            $ref: "#/definitions/httpx.Response"
+            $ref: '#/definitions/httpx.Response'
         "400":
-          description: "message: invalid uuid field -"
+          description: 'message: invalid uuid field -'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
         "401":
-          description: "code: auth.unauthorized"
+          description: 'code: auth.unauthorized'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: follow other user
       tags:
-        - user
+      - user
   /user/feed:
     get:
       description: get feeds for current logged in users
       parameters:
-        - description: post limit
-          in: query
-          name: limit
-          type: integer
-        - description: cursor string
-          in: query
-          name: cursor
-          type: string
+      - description: post limit
+        in: query
+        name: limit
+        type: integer
+      - description: cursor string
+        in: query
+        name: cursor
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-              - $ref: "#/definitions/httpx.Response"
-              - properties:
-                  data:
-                    items:
-                      $ref: "#/definitions/post.Post"
-                    type: array
-                  meta:
-                    $ref: "#/definitions/pagination.PaginationMeta"
-                type: object
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/post.Post'
+                  type: array
+                meta:
+                  $ref: '#/definitions/pagination.PaginationMeta'
+              type: object
         "401":
-          description: "code: auth.unauthorized"
+          description: 'code: auth.unauthorized'
           schema:
-            $ref: "#/definitions/httpx.ErrorResponse"
+            $ref: '#/definitions/httpx.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: get user feeds
       tags:
-        - user
+      - user
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer " followed by a space and your JWT token.
