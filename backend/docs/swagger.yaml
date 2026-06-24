@@ -98,6 +98,18 @@ definitions:
       next_cursor:
         type: string
     type: object
+  post.CreatePostRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - content
+    - title
+    type: object
   post.Post:
     properties:
       authorID:
@@ -115,6 +127,21 @@ definitions:
       title:
         type: string
       updatedAt:
+        type: string
+    type: object
+  post.UpdatePostRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    type: object
+  validator.FieldError:
+    properties:
+      field:
+        type: string
+      message:
         type: string
     type: object
 host: localhost:8080
@@ -221,6 +248,175 @@ paths:
       summary: Register new user
       tags:
       - auth
+  /post:
+    get:
+      description: get latest post
+      parameters:
+      - description: post limit
+        in: query
+        name: limit
+        type: integer
+      - description: cursor string
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/post.Post'
+                  type: array
+                meta:
+                  $ref: '#/definitions/pagination.PaginationMeta'
+              type: object
+      summary: get latest post
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: create post
+      parameters:
+      - description: create post request body
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/post.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/post.Post'
+              type: object
+        "400":
+          description: 'message: validation failed'
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.ErrorResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/validator.FieldError'
+                  type: array
+              type: object
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: create post
+      tags:
+      - post
+  /post/{post_id}:
+    delete:
+      description: update post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: post deleted!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: invalid uuid field -'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: update post
+      tags:
+      - post
+    get:
+      description: get post by given id post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/post.Post'
+              type: object
+      summary: get post by given id post
+      tags:
+      - post
+    patch:
+      consumes:
+      - application/json
+      description: update post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: update post request body
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/post.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: post updated!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: validation failed'
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.ErrorResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/validator.FieldError'
+                  type: array
+              type: object
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: update post
+      tags:
+      - post
   /user/{user_id}/follow:
     delete:
       description: unfollow the user with given id in the path
