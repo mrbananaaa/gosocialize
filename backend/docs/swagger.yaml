@@ -72,9 +72,11 @@ definitions:
   httpx.ErrorResponse:
     properties:
       code:
+        example: internal.server_error
         type: string
       details: {}
       message:
+        example: what's gewd!
         type: string
       success:
         type: boolean
@@ -83,6 +85,7 @@ definitions:
     properties:
       data: {}
       message:
+        example: response message
         type: string
       meta: {}
       success:

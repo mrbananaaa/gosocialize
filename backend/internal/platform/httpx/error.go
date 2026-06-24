@@ -10,8 +10,8 @@ import (
 
 type ErrorResponse struct {
 	Success bool   `json:"success"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	Code    string `json:"code" example:"internal.server_error"`
+	Message string `json:"message" example:"what's gewd!"`
 	Details any    `json:"details,omitempty"`
 }
 

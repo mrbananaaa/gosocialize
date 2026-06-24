@@ -278,11 +278,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "internal.server_error"
                 },
                 "details": {},
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "what's gewd!"
                 },
                 "success": {
                     "type": "boolean"
@@ -294,7 +296,8 @@ const docTemplate = `{
             "properties": {
                 "data": {},
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "response message"
                 },
                 "meta": {},
                 "success": {
