@@ -12,6 +12,7 @@ import (
 	"github.com/mrbananaaa/gosocialize/internal/platform/httpx"
 	"github.com/mrbananaaa/gosocialize/internal/post"
 	"github.com/mrbananaaa/gosocialize/internal/user"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handlers struct {
@@ -42,6 +43,9 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+	r.Use(middleware.Compress(5, "application/json"))
+
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	r.Route("/v1", func(u chi.Router) {
 		u.Mount("/auth", h.authHandler.Routes())

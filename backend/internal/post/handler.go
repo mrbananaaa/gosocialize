@@ -25,6 +25,16 @@ func NewHandler(postService *Service) *Handler {
 	}
 }
 
+// ListPosts godoc
+//
+// @Summary get latest post
+// @Description get latest post
+// @Tags post
+// @Produce json
+// @Param limit query int false "post limit"
+// @Param cursor query string false "cursor string"
+// @Success 200 {object} httpx.Response{data=[]post.Post,meta=pagination.PaginationMeta}
+// @Router /post [get]
 func (h *Handler) ListPosts(w http.ResponseWriter, r *http.Request) {
 	limitStr := r.URL.Query().Get("limit")
 	cursorStr := r.URL.Query().Get("cursor")
@@ -51,6 +61,20 @@ func (h *Handler) ListPosts(w http.ResponseWriter, r *http.Request) {
 	}))
 }
 
+// CreatePost godoc
+//
+// @Summary create post
+// @Description create post
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param post body CreatePostRequest true "create post request body"
+// @Success 201 {object} httpx.Response{data=post.Post}
+// @Failure 401 {object} httpx.ErrorResponse "code: auth.unauthorized"
+// @Failure 400 {object} httpx.ErrorResponse "message: bad request body"
+// @Failure 400 {object} httpx.ErrorResponse{details=[]validator.FieldError} "message: validation failed"
+// @Router /post [post]
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	userCtx, exists := requestctx.UserFromContext(r.Context())
 	if !exists {
@@ -87,6 +111,15 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	httpx.Created(w, ToPostResponse(post))
 }
 
+// GetPostByID godoc
+//
+// @Summary get post by given id post
+// @Description get post by given id post
+// @Tags post
+// @Produce json
+// @Param post_id path string true "Post ID"
+// @Success 200 {object} httpx.Response{data=post.Post}
+// @Router /post/{post_id} [get]
 func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	postIDstr := chi.URLParam(r, "postID")
 	postID, err := uuid.Parse(postIDstr)
@@ -106,6 +139,22 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	httpx.OK(w, ToPostResponse(post))
 }
 
+// UpdatePost godoc
+//
+// @Summary update post
+// @Description update post
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param post_id path string true "Post ID"
+// @Param post body UpdatePostRequest true "update post request body"
+// @Success 200 {object} httpx.Response "message: post updated!"
+// @Failure 400 {object} httpx.ErrorResponse "message: invalid uuid field -"
+// @Failure 401 {object} httpx.ErrorResponse "code: auth.unauthorized"
+// @Failure 400 {object} httpx.ErrorResponse "message: bad request body"
+// @Failure 400 {object} httpx.ErrorResponse{details=[]validator.FieldError} "message: validation failed"
+// @Router /post/{post_id} [patch]
 func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	postIDStr := chi.URLParam(r, "postID")
 	postID, err := uuid.Parse(postIDStr)
@@ -157,6 +206,18 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	httpx.Message(w, http.StatusOK, "post updated!")
 }
 
+// UpdatePost godoc
+//
+// @Summary update post
+// @Description update post
+// @Tags post
+// @Produce json
+// @Security BearerAuth
+// @Param post_id path string true "Post ID"
+// @Success 200 {object} httpx.Response "message: post deleted!"
+// @Failure 400 {object} httpx.ErrorResponse "message: invalid uuid field -"
+// @Failure 401 {object} httpx.ErrorResponse "code: auth.unauthorized"
+// @Router /post/{post_id} [delete]
 func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	postIDStr := chi.URLParam(r, "postID")
 	postID, err := uuid.Parse(postIDStr)

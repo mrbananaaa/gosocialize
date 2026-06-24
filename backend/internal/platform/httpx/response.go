@@ -7,9 +7,9 @@ import (
 
 type Response struct {
 	Success bool   `json:"success"`
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty" example:"response message"`
 	Data    any    `json:"data,omitempty"`
-	Meta    any    `json:"meta,omitzero"`
+	Meta    any    `json:"meta,omitempty"`
 }
 
 func writeJSON(
