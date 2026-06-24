@@ -40,8 +40,8 @@ type SignUpResponse struct {
 
 // SignUp godoc
 //
-// @Summary Register new user
-// @Description register new user route
+// @Summary register new user
+// @Description register new user
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -97,8 +97,8 @@ type SignInResponse struct {
 
 // Signin godoc
 //
-// @Summary Signin
-// @Description get the goddam token
+// @Summary user login
+// @Description login and get the access token
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -144,8 +144,8 @@ type RefreshResponse struct {
 
 // Refresh godoc
 //
-// @Summary Refresh token route
-// @Description Get a new access token using refresh token from cookie
+// @Summary refresh token
+// @Description get a new access token using refresh token from cookie
 // @Tags auth
 // @Produce json
 // @Success 200 {object} httpx.Response{data=RefreshResponse}
@@ -174,8 +174,8 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 // SignOut godoc
 //
-// @Summary SignOut
-// @Description SignOut
+// @Summary logout
+// @Description logout
 // @Tags auth
 // @Produce json
 // @Success 200 {object} httpx.Response
