@@ -91,6 +91,32 @@ definitions:
       success:
         type: boolean
     type: object
+  pagination.PaginationMeta:
+    properties:
+      has_more:
+        type: boolean
+      next_cursor:
+        type: string
+    type: object
+  post.Post:
+    properties:
+      authorID:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -195,4 +221,104 @@ paths:
       summary: Register new user
       tags:
       - auth
+  /user/{user_id}/follow:
+    delete:
+      description: unfollow the user with given id in the path
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: user unfollowed!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: invalid uuid field -'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: unfollow other user
+      tags:
+      - user
+    post:
+      description: follow the user with given id in the path
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'message: user followed!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: invalid uuid field -'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: follow other user
+      tags:
+      - user
+  /user/feed:
+    get:
+      description: get feeds for current logged in users
+      parameters:
+      - description: post limit
+        in: query
+        name: limit
+        type: integer
+      - description: cursor string
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/post.Post'
+                  type: array
+                meta:
+                  $ref: '#/definitions/pagination.PaginationMeta'
+              type: object
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: get user feeds
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer " followed by a space and your JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
