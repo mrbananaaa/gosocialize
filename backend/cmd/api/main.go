@@ -6,11 +6,23 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/mrbananaaa/gosocialize/docs"
 	"github.com/mrbananaaa/gosocialize/internal/api"
 	"github.com/mrbananaaa/gosocialize/internal/platform/config"
 	"github.com/mrbananaaa/gosocialize/pkg/logger"
 )
 
+// @title GoSocialize
+// @version 1.0
+// @description Social platform app used to write articles.
+
+// @host localhost:8080
+// @BasePath /v1
+
+// @securityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer " followed by a space and your JWT token.
 func main() {
 	cfg, err := config.Load()
 	if err != nil {

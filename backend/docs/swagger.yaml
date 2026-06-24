@@ -1,0 +1,520 @@
+basePath: /v1
+definitions:
+  auth.RefreshResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  auth.SignInRequest:
+    properties:
+      password:
+        example: '@Itskindahardtodefine'
+        type: string
+      username:
+        example: 21charmaxyoo
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  auth.SignInResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  auth.SignUpRequest:
+    properties:
+      email:
+        example: mail.me@here.dev
+        type: string
+      name:
+        example: John Doe Is Ya Name
+        type: string
+      password:
+        example: '@Itskindahardtodefine'
+        type: string
+      username:
+        example: 21charmaxyoo
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
+  auth.SignUpResponse:
+    properties:
+      created_at:
+        example: "2026-06-24T07:29:51.705430194Z"
+        format: dateTime
+        type: string
+      email:
+        example: mail.me@here.dev
+        format: email
+        type: string
+      id:
+        example: b14136a3-284f-4620-82dc-290478530cee
+        format: uuid
+        type: string
+      name:
+        example: John Doe Is Ya Name
+        type: string
+      updated_at:
+        example: "2026-06-24T07:29:51.705430194Z"
+        format: dateTime
+        type: string
+      username:
+        example: 21charmaxyoo
+        type: string
+    type: object
+  httpx.ErrorResponse:
+    properties:
+      code:
+        example: internal.server_error
+        type: string
+      details: {}
+      message:
+        example: what's gewd!
+        type: string
+      success:
+        type: boolean
+    type: object
+  httpx.Response:
+    properties:
+      data: {}
+      message:
+        example: response message
+        type: string
+      meta: {}
+      success:
+        type: boolean
+    type: object
+  pagination.PaginationMeta:
+    properties:
+      has_more:
+        type: boolean
+      next_cursor:
+        type: string
+    type: object
+  post.CreatePostRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  post.Post:
+    properties:
+      authorID:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  post.UpdatePostRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    type: object
+  validator.FieldError:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Social platform app used to write articles.
+  title: GoSocialize
+  version: "1.0"
+paths:
+  /auth/refresh:
+    get:
+      description: Get a new access token using refresh token from cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.RefreshResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Refresh token route
+      tags:
+      - auth
+  /auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: get the goddam token
+      parameters:
+      - description: signin request body
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.SignInResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Signin
+      tags:
+      - auth
+  /auth/signout:
+    post:
+      description: SignOut
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpx.Response'
+      summary: SignOut
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: register new user route
+      parameters:
+      - description: signup request body
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.SignUpResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Register new user
+      tags:
+      - auth
+  /post:
+    get:
+      description: get latest post
+      parameters:
+      - description: post limit
+        in: query
+        name: limit
+        type: integer
+      - description: cursor string
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/post.Post'
+                  type: array
+                meta:
+                  $ref: '#/definitions/pagination.PaginationMeta'
+              type: object
+      summary: get latest post
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: create post
+      parameters:
+      - description: create post request body
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/post.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/post.Post'
+              type: object
+        "400":
+          description: 'message: validation failed'
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.ErrorResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/validator.FieldError'
+                  type: array
+              type: object
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: create post
+      tags:
+      - post
+  /post/{post_id}:
+    delete:
+      description: update post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: post deleted!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: invalid uuid field -'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: update post
+      tags:
+      - post
+    get:
+      description: get post by given id post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/post.Post'
+              type: object
+      summary: get post by given id post
+      tags:
+      - post
+    patch:
+      consumes:
+      - application/json
+      description: update post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: update post request body
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/post.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: post updated!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: validation failed'
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.ErrorResponse'
+            - properties:
+                details:
+                  items:
+                    $ref: '#/definitions/validator.FieldError'
+                  type: array
+              type: object
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: update post
+      tags:
+      - post
+  /user/{user_id}/follow:
+    delete:
+      description: unfollow the user with given id in the path
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: user unfollowed!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: invalid uuid field -'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: unfollow other user
+      tags:
+      - user
+    post:
+      description: follow the user with given id in the path
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'message: user followed!'
+          schema:
+            $ref: '#/definitions/httpx.Response'
+        "400":
+          description: 'message: invalid uuid field -'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: follow other user
+      tags:
+      - user
+  /user/feed:
+    get:
+      description: get feeds for current logged in users
+      parameters:
+      - description: post limit
+        in: query
+        name: limit
+        type: integer
+      - description: cursor string
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/post.Post'
+                  type: array
+                meta:
+                  $ref: '#/definitions/pagination.PaginationMeta'
+              type: object
+        "401":
+          description: 'code: auth.unauthorized'
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: get user feeds
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer " followed by a space and your JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
