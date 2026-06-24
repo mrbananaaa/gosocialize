@@ -43,6 +43,7 @@ func NewRouter(h Handlers, m Middlewares) http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+	r.Use(middleware.Compress(5, "application/json"))
 
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
