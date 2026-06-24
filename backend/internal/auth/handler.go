@@ -23,21 +23,32 @@ func NewHandler(authService *Service) *Handler {
 }
 
 type SignUpRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required,email" example:"mail.me@here.dev"`
+	Username string `json:"username" validate:"required" example:"21charmaxyoo"`
+	Password string `json:"password" validate:"required" example:"@Itskindahardtodefine"`
+	Name     string `json:"name" validate:"required" example:"John Doe Is Ya Name"`
 }
 
 type SignUpResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID `json:"id" format:"uuid" example:"b14136a3-284f-4620-82dc-290478530cee"`
+	Email     string    `json:"email" format:"email" example:"mail.me@here.dev"`
+	Username  string    `json:"username" example:"21charmaxyoo"`
+	Name      string    `json:"name" example:"John Doe Is Ya Name"`
+	CreatedAt time.Time `json:"created_at" format:"dateTime" example:"2026-06-24T07:29:51.705430194Z"`
+	UpdatedAt time.Time `json:"updated_at" format:"dateTime" example:"2026-06-24T07:29:51.705430194Z"`
 }
 
+// SignUp godoc
+//
+// @Summary Register new user
+// @Description register new user route
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param signup body SignUpRequest true "signup request body"
+// @Success 201 {object} httpx.Response{data=SignUpResponse}
+// @Failure 400 {object} httpx.ErrorResponse
+// @Router /auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var req SignUpRequest
 
@@ -76,14 +87,25 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 type SignInRequest struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Username string `json:"username" validate:"required" example:"21charmaxyoo"`
+	Password string `json:"password" validate:"required" example:"@Itskindahardtodefine"`
 }
 
 type SignInResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken string `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 }
 
+// Signin godoc
+//
+// @Summary Signin
+// @Description get the goddam token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param signup body SignInRequest true "signin request body"
+// @Success 200 {object} httpx.Response{data=SignInResponse}
+// @Failure 400 {object} httpx.ErrorResponse
+// @Router /auth/signin [post]
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var req SignInRequest
 
@@ -117,9 +139,18 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 type RefreshResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken string `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 }
 
+// Refresh godoc
+//
+// @Summary Refresh token route
+// @Description Get a new access token using refresh token from cookie
+// @Tags auth
+// @Produce json
+// @Success 200 {object} httpx.Response{data=RefreshResponse}
+// @Failure 401 {object} httpx.ErrorResponse
+// @Router /auth/refresh [get]
 func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	refresh, err := httpx.GetRefreshToken(r)
 	if err != nil {
@@ -141,6 +172,14 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// SignOut godoc
+//
+// @Summary SignOut
+// @Description SignOut
+// @Tags auth
+// @Produce json
+// @Success 200 {object} httpx.Response
+// @Router /auth/signout [post]
 func (h *Handler) SignOut(w http.ResponseWriter, r *http.Request) {
 	httpx.CleanRefreshToken(w)
 
