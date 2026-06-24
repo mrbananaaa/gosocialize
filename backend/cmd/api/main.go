@@ -18,6 +18,11 @@ import (
 
 // @host localhost:8080
 // @BasePath /v1
+
+// @securityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer " followed by a space and your JWT token.
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
