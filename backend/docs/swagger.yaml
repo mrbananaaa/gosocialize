@@ -1,0 +1,195 @@
+basePath: /v1
+definitions:
+  auth.RefreshResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  auth.SignInRequest:
+    properties:
+      password:
+        example: '@Itskindahardtodefine'
+        type: string
+      username:
+        example: 21charmaxyoo
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  auth.SignInResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  auth.SignUpRequest:
+    properties:
+      email:
+        example: mail.me@here.dev
+        type: string
+      name:
+        example: John Doe Is Ya Name
+        type: string
+      password:
+        example: '@Itskindahardtodefine'
+        type: string
+      username:
+        example: 21charmaxyoo
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
+  auth.SignUpResponse:
+    properties:
+      created_at:
+        example: "2026-06-24T07:29:51.705430194Z"
+        format: dateTime
+        type: string
+      email:
+        example: mail.me@here.dev
+        format: email
+        type: string
+      id:
+        example: b14136a3-284f-4620-82dc-290478530cee
+        format: uuid
+        type: string
+      name:
+        example: John Doe Is Ya Name
+        type: string
+      updated_at:
+        example: "2026-06-24T07:29:51.705430194Z"
+        format: dateTime
+        type: string
+      username:
+        example: 21charmaxyoo
+        type: string
+    type: object
+  httpx.ErrorResponse:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  httpx.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      meta: {}
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Social platform app used to write articles.
+  title: GoSocialize
+  version: "1.0"
+paths:
+  /auth/refresh:
+    get:
+      description: Get a new access token using refresh token from cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.RefreshResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Refresh token route
+      tags:
+      - auth
+  /auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: get the goddam token
+      parameters:
+      - description: signin request body
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.SignInResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Signin
+      tags:
+      - auth
+  /auth/signout:
+    post:
+      description: SignOut
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/httpx.Response'
+      summary: SignOut
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: register new user route
+      parameters:
+      - description: signup request body
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.SignUpResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Register new user
+      tags:
+      - auth
+swagger: "2.0"
