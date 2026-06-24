@@ -17,14 +17,14 @@ const docTemplate = `{
     "paths": {
         "/auth/refresh": {
             "get": {
-                "description": "Get a new access token using refresh token from cookie",
+                "description": "get a new access token using refresh token from cookie",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Refresh token route",
+                "summary": "refresh token",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -55,7 +55,7 @@ const docTemplate = `{
         },
         "/auth/signin": {
             "post": {
-                "description": "get the goddam token",
+                "description": "login and get the access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -65,7 +65,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Signin",
+                "summary": "user login",
                 "parameters": [
                     {
                         "description": "signin request body",
@@ -107,14 +107,14 @@ const docTemplate = `{
         },
         "/auth/signout": {
             "post": {
-                "description": "SignOut",
+                "description": "logout",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "SignOut",
+                "summary": "logout",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -127,7 +127,7 @@ const docTemplate = `{
         },
         "/auth/signup": {
             "post": {
-                "description": "register new user route",
+                "description": "register new user",
                 "consumes": [
                     "application/json"
                 ],
@@ -137,7 +137,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Register new user",
+                "summary": "register new user",
                 "parameters": [
                     {
                         "description": "signup request body",
