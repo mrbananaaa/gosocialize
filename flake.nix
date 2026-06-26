@@ -24,6 +24,14 @@
             goose
             gotestfmt
 
+            # node
+            nodejs
+            pnpm
+            eslint_d
+            prettierd
+            tailwindcss-language-server
+            vscode-langservers-extracted
+
             # utils
             jq
             bruno
